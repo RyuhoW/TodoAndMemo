@@ -6,49 +6,35 @@ test.describe('Notes', () => {
   });
 
   test('should add a new note', async ({ page }) => {
-    // 新しいメモを入力
-    await page.fill('textarea[placeholder="新しいメモを入力"]', '新しいメモ');
+    await page.fill('input[placeholder="新しいメモを入力"]', '新しいメモ');
     await page.click('button:has-text("追加")');
-
-    // メモが追加されたことを確認
-    await expect(page.locator('.note')).toContainText('新しいメモ');
+    await expect(page.locator('li:has-text("新しいメモ")')).toBeVisible();
   });
 
   test('should delete a note', async ({ page }) => {
-    // メモを追加
-    await page.fill('textarea[placeholder="新しいメモを入力"]', '削除するメモ');
+    await page.fill('input[placeholder="新しいメモを入力"]', '削除するメモ');
     await page.click('button:has-text("追加")');
-
-    // メモが存在することを確認
-    await expect(page.locator('.note:has-text("削除するメモ")')).toBeVisible();
-
-    // メモを削除
-    await page.click('.note:has-text("削除するメモ") .delete-button');
-
-    // メモが削除されたことを確認
-    await expect(page.locator('.note:has-text("削除するメモ")')).not.toBeVisible();
+    await page.click('li:has-text("削除するメモ") button:has-text("削除")');
+    await expect(page.locator('li:has-text("削除するメモ")')).not.toBeVisible();
   });
 
   test('should display multiple notes', async ({ page }) => {
-    // 複数のメモを追加
-    const notes = ['メモ1', 'メモ2', 'メモ3'];
-    for (const note of notes) {
-      await page.fill('textarea[placeholder="新しいメモを入力"]', note);
-      await page.click('button:has-text("追加")');
-    }
+    await page.fill('input[placeholder="新しいメモを入力"]', 'メモ1');
+    await page.click('button:has-text("追加")');
+    await page.fill('input[placeholder="新しいメモを入力"]', 'メモ2');
+    await page.click('button:has-text("追加")');
+    await page.fill('input[placeholder="新しいメモを入力"]', 'メモ3');
+    await page.click('button:has-text("追加")');
 
-    // すべてのメモが表示されていることを確認
-    for (const note of notes) {
-      await expect(page.locator('.note')).toContainText(note);
-    }
+    await expect(page.locator('li:has-text("メモ1")')).toBeVisible();
+    await expect(page.locator('li:has-text("メモ2")')).toBeVisible();
+    await expect(page.locator('li:has-text("メモ3")')).toBeVisible();
   });
 
   test('should handle empty note input', async ({ page }) => {
-    // 空のメモを追加しようとする
-    await page.fill('textarea[placeholder="新しいメモを入力"]', '');
+    const initialNoteCount = await page.locator('li').count();
     await page.click('button:has-text("追加")');
-
-    // メモが追加されていないことを確認
-    await expect(page.locator('.note')).not.toBeVisible();
+    const finalNoteCount = await page.locator('li').count();
+    expect(finalNoteCount).toBe(initialNoteCount);
   });
 }); 
