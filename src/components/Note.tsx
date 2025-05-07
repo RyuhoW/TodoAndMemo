@@ -8,12 +8,23 @@ interface NoteProps {
 
 const Note: React.FC<NoteProps> = memo(({ note, onDelete }) => {
   return (
-    <div className="animate-slide-in bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
-      <div className="flex justify-between items-start">
-        <p className="text-gray-700 flex-1">{note.text}</p>
+    <div className="animate-slide-in bg-gradient-to-r from-white to-purple-50/50 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 border border-purple-100/50">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <p className="text-gray-700 whitespace-pre-wrap">{note.text}</p>
+          <p className="text-sm text-gray-500 mt-2">
+            {new Date(note.createdAt).toLocaleString('ja-JP', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </p>
+        </div>
         <button
           onClick={() => onDelete(note.id)}
-          className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors duration-200"
+          className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200 transform hover:scale-110"
           title="メモを削除"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -21,9 +32,6 @@ const Note: React.FC<NoteProps> = memo(({ note, onDelete }) => {
           </svg>
         </button>
       </div>
-      <p className="text-xs text-gray-500 mt-2">
-        {new Date(note.createdAt).toLocaleString()}
-      </p>
     </div>
   );
 });
