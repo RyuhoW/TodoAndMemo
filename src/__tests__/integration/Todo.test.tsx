@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import App from '../App';
+import App from '../../App';
 
 describe('Todo Section', () => {
   test('renders todo section with input and add button', () => {

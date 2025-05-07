@@ -3,5 +3,5 @@ export interface Note {
   text: string;
   timestamp: number;
 }
-
+ 
 export type NoteList = Note[]; 
