@@ -2,10 +2,11 @@ import React, { useState, useCallback } from 'react';
 import TodoList from './components/TodoList';
 import Note from './components/Note';
 import Calculator from './components/Calculator';
-import Calendar from './components/Calendar';
+import Calendar, { CalendarEvent } from './components/Calendar';
 import Dashboard from './components/Dashboard';
 import { Todo, TodoList as TodoListType } from './types/todo';
 import type { Note as NoteType } from './types/note';
+import { DropResult } from 'react-beautiful-dnd';
 import './styles/main.scss';
 
 const TodoInput: React.FC<{
@@ -102,12 +103,12 @@ const App: React.FC = () => {
     );
   }, []);
 
-  const handleEventDrop = useCallback(({ event, start }: any) => {
+  const handleEventDrop = useCallback((event: CalendarEvent, start: Date, end: Date) => {
     if (event.type === 'todo') {
       setTodos(prevTodos =>
         prevTodos.map(todo =>
           todo.id === event.id
-            ? { ...todo, id: start.getTime() }
+            ? { ...todo, createdAt: start.toISOString() }
             : todo
         )
       );
@@ -122,7 +123,35 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleReorder = useCallback((result: any) => {
+  const handleEventResize = useCallback((event: CalendarEvent, start: Date, end: Date) => {
+    if (event.type === 'todo') {
+      setTodos(prevTodos =>
+        prevTodos.map(todo =>
+          todo.id === event.id
+            ? { ...todo, createdAt: start.toISOString() }
+            : todo
+        )
+      );
+    } else {
+      setNotes(prevNotes =>
+        prevNotes.map(note =>
+          note.id === event.id
+            ? { ...note, timestamp: start.getTime() }
+            : note
+        )
+      );
+    }
+  }, []);
+
+  const handleSelectSlot = useCallback(({ start, end }: { start: Date; end: Date }) => {
+    console.log('Selected slot:', start, end);
+  }, []);
+
+  const handleSelectEvent = useCallback((event: CalendarEvent) => {
+    console.log('Selected event:', event);
+  }, []);
+
+  const handleReorder = useCallback((result: DropResult) => {
     if (!result.destination) return;
 
     const items = Array.from(todos);
@@ -205,6 +234,9 @@ const App: React.FC = () => {
               todos={todos}
               notes={notes}
               onEventDrop={handleEventDrop}
+              onEventResize={handleEventResize}
+              onSelectSlot={handleSelectSlot}
+              onSelectEvent={handleSelectEvent}
             />
           </section>
         )}
