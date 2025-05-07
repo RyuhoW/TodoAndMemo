@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import TodoList from './components/todo/TodoList';
 import Note from './components/notes/Note';
 import Calculator from './components/calculator/Calculator';
@@ -52,6 +52,7 @@ const App: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [noteText, setNoteText] = useState('');
   const [activeTab, setActiveTab] = useState<'todo' | 'calendar' | 'dashboard'>('todo');
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const handleAddTodo = useCallback(() => {
     if (inputText.trim()) {
@@ -83,7 +84,13 @@ const App: React.FC = () => {
   const handleToggle = useCallback((id: number) => {
     setTodos((prevTodos) =>
       prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        todo.id === id
+          ? {
+              ...todo,
+              completed: !todo.completed,
+              completedAt: !todo.completed ? new Date().toISOString() : undefined,
+            }
+          : todo
       )
     );
   }, []);
@@ -162,6 +169,12 @@ const App: React.FC = () => {
     setTodos(items);
   }, [todos]);
 
+  const filteredTodos = useMemo(() => {
+    return showCompleted
+      ? todos.filter((todo) => todo.completed)
+      : todos.filter((todo) => !todo.completed);
+  }, [todos, showCompleted]);
+
   return (
     <div className="app">
       <header>
@@ -192,13 +205,23 @@ const App: React.FC = () => {
           <>
             <section className="section">
               <h2>Todo List</h2>
-              <TodoInput
-                value={inputText}
-                onChange={setInputText}
-                onSubmit={handleAddTodo}
-              />
+              <div className="todo-controls">
+                <TodoInput
+                  value={inputText}
+                  onChange={setInputText}
+                  onSubmit={handleAddTodo}
+                />
+                <div className="todo-filters">
+                  <button
+                    className={`filter-button ${showCompleted ? 'active' : ''}`}
+                    onClick={() => setShowCompleted(!showCompleted)}
+                  >
+                    {showCompleted ? '未完了のタスク' : '完了したタスク'}
+                  </button>
+                </div>
+              </div>
               <TodoList
-                todos={todos}
+                todos={filteredTodos}
                 onToggle={handleToggle}
                 onDelete={handleDelete}
                 onUpdateMemo={handleUpdateMemo}

@@ -75,8 +75,14 @@
 
     &.completed {
       text-decoration: line-through;
-      color: $gray-400;
+      color: $gray-500;
     }
+  }
+
+  .todo-completed-at {
+    font-size: 0.75rem;
+    color: $gray-500;
+    margin-left: 0.5rem;
   }
 
   .todo-actions {
@@ -156,6 +162,50 @@
     p {
       font-size: 0.875rem;
       color: $gray-600;
+    }
+  }
+}
+
+.todo-controls {
+  margin-bottom: 1rem;
+
+  .todo-filters {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+
+    .filter-button {
+      padding: 0.5rem 1rem;
+      border: 1px solid $gray-300;
+      border-radius: 4px;
+      background: $white;
+      color: $gray-700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $gray-50;
+      }
+
+      &.active {
+        background: $primary-color;
+        color: $white;
+        border-color: $primary-color;
+      }
+    }
+
+    .delete-button {
+      padding: 0.5rem 1rem;
+      border: 1px solid $red-300;
+      border-radius: 4px;
+      background: $white;
+      color: $red-600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $red-50;
+      }
     }
   }
 } 

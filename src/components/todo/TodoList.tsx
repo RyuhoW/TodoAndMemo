@@ -51,7 +51,14 @@ const TodoList: React.FC<TodoListProps> = memo(({
                           checked={todo.completed}
                           onChange={() => onToggle(todo.id)}
                         />
-                        <span className="todo-text">{todo.text}</span>
+                        <span className={`todo-text ${todo.completed ? 'completed' : ''}`}>
+                          {todo.text}
+                        </span>
+                        {todo.completed && todo.completedAt && (
+                          <span className="todo-completed-at">
+                            {new Date(todo.completedAt).toLocaleString()}
+                          </span>
+                        )}
                         {todo.memo && (
                           <span className="todo-memo">{todo.memo}</span>
                         )}
