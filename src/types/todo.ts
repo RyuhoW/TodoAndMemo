@@ -10,7 +10,7 @@ export type TodoList = Todo[];
 export interface Note {
   id: number;
   text: string;
-  createdAt: Date;
+  timestamp: number;
 }
 
 export interface NoteType {
