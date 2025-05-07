@@ -1,0 +1,124 @@
+.todo-item {
+  @include card;
+  animation: slideIn 0.3s ease-out;
+  background: linear-gradient(to right, white, rgba($indigo-50, 0.5));
+  border: 1px solid rgba($indigo-100, 0.5);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  .todo-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .todo-checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    border-color: $gray-300;
+    color: $indigo-600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:focus {
+      ring: 2px;
+      ring-color: $indigo-500;
+    }
+  }
+
+  .todo-text {
+    flex: 1;
+    color: $gray-700;
+    transition: all 0.2s ease;
+
+    &.completed {
+      text-decoration: line-through;
+      color: $gray-400;
+    }
+  }
+
+  .todo-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .action-button {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &.edit {
+      color: $indigo-600;
+
+      &:hover {
+        color: $indigo-700;
+        background-color: $indigo-50;
+      }
+    }
+
+    &.delete {
+      color: $red-600;
+
+      &:hover {
+        color: $red-700;
+        background-color: $red-50;
+      }
+    }
+
+    .icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  .memo-editor {
+    margin-top: 0.75rem;
+    animation: fadeIn 0.3s ease-out;
+
+    .memo-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid $gray-300;
+      border-radius: 0.75rem;
+      box-shadow: $shadow-sm;
+      transition: all 0.2s ease;
+
+      &:focus {
+        ring: 2px;
+        ring-color: $indigo-500;
+        border-color: $indigo-500;
+      }
+    }
+
+    .memo-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+  }
+
+  .memo-content {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background-color: rgba(white, 0.5);
+    backdrop-filter: blur(4px);
+    border-radius: 0.75rem;
+    border: 1px solid rgba($indigo-100, 0.5);
+    animation: fadeIn 0.3s ease-out;
+
+    p {
+      font-size: 0.875rem;
+      color: $gray-600;
+    }
+  }
+} 
