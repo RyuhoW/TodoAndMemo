@@ -1,0 +1,86 @@
+.calculator {
+  @include card;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  background: linear-gradient(to bottom right, $white, $gray-50);
+  border: 1px solid $gray-200;
+  border-radius: 12px;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+
+  .calculator-display {
+    background: $gray-800;
+    padding: 1rem;
+    color: $white;
+    text-align: right;
+
+    .equation {
+      font-size: 0.875rem;
+      color: $gray-400;
+      min-height: 1.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .result {
+      font-size: 1.5rem;
+      font-weight: 500;
+    }
+  }
+
+  .calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: $gray-200;
+    padding: 1px;
+
+    button {
+      border: none;
+      padding: 1rem;
+      font-size: 1.25rem;
+      background: $white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $gray-50;
+      }
+
+      &:active {
+        background: $gray-100;
+      }
+
+      &.clear {
+        background: $red-50;
+        color: $red-600;
+
+        &:hover {
+          background: $red-100;
+        }
+      }
+
+      &.operator {
+        background: $indigo-50;
+        color: $indigo-600;
+
+        &:hover {
+          background: $indigo-100;
+        }
+      }
+
+      &.equal {
+        background: $primary-color;
+        color: $white;
+
+        &:hover {
+          background: darken($primary-color, 5%);
+        }
+      }
+
+      &.zero {
+        grid-column: span 2;
+      }
+    }
+  }
+} 

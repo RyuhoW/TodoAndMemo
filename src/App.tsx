@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import TodoList from './components/TodoList';
 import Note from './components/Note';
+import Calculator from './components/Calculator';
 import { Todo, TodoList as TodoListType, Note as NoteType } from './types/todo';
 import './styles/main.scss';
 
@@ -40,7 +41,7 @@ const NoteInput: React.FC<{
   </div>
 ));
 
-function App() {
+const App: React.FC = () => {
   const [todos, setTodos] = useState<TodoListType>([]);
   const [notes, setNotes] = useState<NoteType[]>([]);
   const [inputText, setInputText] = useState('');
@@ -96,47 +97,48 @@ function App() {
 
   return (
     <div className="app">
-      <div className="container">
-        <div className="header">
-          <h1>Todo & Notes</h1>
-          <p>タスク管理とメモを一つのアプリで</p>
-        </div>
-
-        <div className="content">
-          {/* Todo Section */}
-          <div className="section">
-            <h2>タスク</h2>
-            <TodoInput
-              value={inputText}
-              onChange={setInputText}
-              onSubmit={handleAddTodo}
-            />
-            <TodoList
-              todos={todos}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-              onUpdateMemo={handleUpdateMemo}
-            />
+      <header>
+        <h1>Todo & Notes App</h1>
+      </header>
+      <main className="content">
+        <section className="section">
+          <h2>Todo List</h2>
+          <TodoInput
+            value={inputText}
+            onChange={setInputText}
+            onSubmit={handleAddTodo}
+          />
+          <TodoList
+            todos={todos}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            onUpdateMemo={handleUpdateMemo}
+          />
+        </section>
+        <section className="section">
+          <h2>Notes</h2>
+          <NoteInput
+            value={noteText}
+            onChange={setNoteText}
+            onSubmit={handleAddNote}
+          />
+          <div className="notes-grid">
+            {notes.map(note => (
+              <Note
+                key={note.id}
+                note={note}
+                onDelete={handleDeleteNote}
+              />
+            ))}
           </div>
-
-          {/* Notes Section */}
-          <div className="section">
-            <h2>メモ</h2>
-            <NoteInput
-              value={noteText}
-              onChange={setNoteText}
-              onSubmit={handleAddNote}
-            />
-            <div className="notes-list">
-              {notes.map((note) => (
-                <Note key={note.id} note={note} onDelete={handleDeleteNote} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+        </section>
+        <section className="section">
+          <h2>Calculator</h2>
+          <Calculator />
+        </section>
+      </main>
     </div>
   );
-}
+};
 
 export default App;
