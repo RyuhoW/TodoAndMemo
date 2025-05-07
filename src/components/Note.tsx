@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { NoteType } from '../types/todo';
 
 interface NoteProps {
@@ -6,7 +6,11 @@ interface NoteProps {
   onDelete: (id: number) => void;
 }
 
-const Note: React.FC<NoteProps> = ({ note, onDelete }) => {
+const Note: React.FC<NoteProps> = memo(({ note, onDelete }) => {
+  const handleDelete = useCallback(() => {
+    onDelete(note.id);
+  }, [note.id, onDelete]);
+
   return (
     <div className="note">
       <div className="note-content">
@@ -14,7 +18,7 @@ const Note: React.FC<NoteProps> = ({ note, onDelete }) => {
         <span className="note-timestamp">{new Date(note.timestamp).toLocaleString()}</span>
       </div>
       <button
-        onClick={() => onDelete(note.id)}
+        onClick={handleDelete}
         className="action-button delete"
         title="メモを削除"
       >
@@ -24,6 +28,8 @@ const Note: React.FC<NoteProps> = ({ note, onDelete }) => {
       </button>
     </div>
   );
-};
+});
+
+Note.displayName = 'Note';
 
 export default Note; 
