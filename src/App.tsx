@@ -4,6 +4,42 @@ import Note from './components/Note';
 import { Todo, TodoList as TodoListType, Note as NoteType } from './types/todo';
 import './styles/main.scss';
 
+const TodoInput: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+}> = React.memo(({ value, onChange, onSubmit }) => (
+  <div className="input-group">
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="新しいタスクを入力"
+      onKeyPress={(e) => e.key === 'Enter' && onSubmit()}
+    />
+    <button onClick={onSubmit} className="button">
+      追加
+    </button>
+  </div>
+));
+
+const NoteInput: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+}> = React.memo(({ value, onChange, onSubmit }) => (
+  <div className="input-group">
+    <textarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="新しいメモを入力"
+    />
+    <button onClick={onSubmit} className="button">
+      追加
+    </button>
+  </div>
+));
+
 function App() {
   const [todos, setTodos] = useState<TodoListType>([]);
   const [notes, setNotes] = useState<NoteType[]>([]);
@@ -70,21 +106,11 @@ function App() {
           {/* Todo Section */}
           <div className="section">
             <h2>タスク</h2>
-            <div className="input-group">
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="新しいタスクを入力"
-                onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
-              />
-              <button
-                onClick={handleAddTodo}
-                className="button"
-              >
-                追加
-              </button>
-            </div>
+            <TodoInput
+              value={inputText}
+              onChange={setInputText}
+              onSubmit={handleAddTodo}
+            />
             <TodoList
               todos={todos}
               onToggle={handleToggle}
@@ -96,19 +122,11 @@ function App() {
           {/* Notes Section */}
           <div className="section">
             <h2>メモ</h2>
-            <div className="input-group">
-              <textarea
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                placeholder="新しいメモを入力"
-              />
-              <button
-                onClick={handleAddNote}
-                className="button"
-              >
-                追加
-              </button>
-            </div>
+            <NoteInput
+              value={noteText}
+              onChange={setNoteText}
+              onSubmit={handleAddNote}
+            />
             <div className="notes-list">
               {notes.map((note) => (
                 <Note key={note.id} note={note} onDelete={handleDeleteNote} />
