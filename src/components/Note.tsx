@@ -1,12 +1,12 @@
 import React, { memo, useCallback } from 'react';
-import { NoteType } from '../types/todo';
+import type { Note } from '../types/note';
 
 interface NoteProps {
-  note: NoteType;
+  note: Note;
   onDelete: (id: number) => void;
 }
 
-const Note: React.FC<NoteProps> = memo(({ note, onDelete }) => {
+const NoteComponent: React.FC<NoteProps> = memo(({ note, onDelete }) => {
   const handleDelete = useCallback(() => {
     onDelete(note.id);
   }, [note.id, onDelete]);
@@ -30,6 +30,6 @@ const Note: React.FC<NoteProps> = memo(({ note, onDelete }) => {
   );
 });
 
-Note.displayName = 'Note';
+NoteComponent.displayName = 'Note';
 
-export default Note; 
+export default NoteComponent; 

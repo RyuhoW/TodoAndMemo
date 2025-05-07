@@ -92,11 +92,9 @@ const Calculator: React.FC = memo(() => {
 
   const calculateResult = useCallback((eq: string, current: string) => {
     try {
-      // 安全な計算方法を使用
       const sanitizedEq = eq.replace(/[^0-9+\-*/.() ]/g, '');
       const sanitizedCurrent = current.replace(/[^0-9+\-*/.() ]/g, '');
       const expression = sanitizedEq + sanitizedCurrent;
-      // eslint-disable-next-line no-new-func
       const result = new Function('return ' + expression)();
       return String(result);
     } catch (error) {
