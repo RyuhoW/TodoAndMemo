@@ -1,5 +1,60 @@
 import React, { memo, useState, useCallback } from 'react';
 
+interface CalculatorButtonProps {
+  onClick: () => void;
+  className: string;
+  children: React.ReactNode;
+}
+
+const CalculatorButton: React.FC<CalculatorButtonProps> = memo(({ onClick, className, children }) => (
+  <button onClick={onClick} className={`button ${className}`}>
+    {children}
+  </button>
+));
+
+CalculatorButton.displayName = 'CalculatorButton';
+
+interface NumberPadProps {
+  onNumberClick: (num: string) => void;
+}
+
+const NumberPad: React.FC<NumberPadProps> = memo(({ onNumberClick }) => (
+  <div className="number-pad">
+    <CalculatorButton onClick={() => onNumberClick('7')} className="number">7</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('8')} className="number">8</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('9')} className="number">9</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('4')} className="number">4</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('5')} className="number">5</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('6')} className="number">6</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('1')} className="number">1</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('2')} className="number">2</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('3')} className="number">3</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('0')} className="number zero">0</CalculatorButton>
+    <CalculatorButton onClick={() => onNumberClick('.')} className="number">.</CalculatorButton>
+  </div>
+));
+
+NumberPad.displayName = 'NumberPad';
+
+interface OperatorPadProps {
+  onOperatorClick: (operator: string) => void;
+  onClear: () => void;
+  onEqual: () => void;
+}
+
+const OperatorPad: React.FC<OperatorPadProps> = memo(({ onOperatorClick, onClear, onEqual }) => (
+  <div className="operator-pad">
+    <CalculatorButton onClick={onClear} className="clear">C</CalculatorButton>
+    <CalculatorButton onClick={() => onOperatorClick('/')} className="operator">÷</CalculatorButton>
+    <CalculatorButton onClick={() => onOperatorClick('*')} className="operator">×</CalculatorButton>
+    <CalculatorButton onClick={() => onOperatorClick('-')} className="operator">-</CalculatorButton>
+    <CalculatorButton onClick={() => onOperatorClick('+')} className="operator">+</CalculatorButton>
+    <CalculatorButton onClick={onEqual} className="equal">=</CalculatorButton>
+  </div>
+));
+
+OperatorPad.displayName = 'OperatorPad';
+
 const Calculator: React.FC = memo(() => {
   const [display, setDisplay] = useState('0');
   const [equation, setEquation] = useState('');
@@ -53,27 +108,12 @@ const Calculator: React.FC = memo(() => {
         <div className="result">{display}</div>
       </div>
       <div className="calculator-buttons">
-        <div className="number-pad">
-          <button onClick={() => handleNumber('7')} className="button number">7</button>
-          <button onClick={() => handleNumber('8')} className="button number">8</button>
-          <button onClick={() => handleNumber('9')} className="button number">9</button>
-          <button onClick={() => handleNumber('4')} className="button number">4</button>
-          <button onClick={() => handleNumber('5')} className="button number">5</button>
-          <button onClick={() => handleNumber('6')} className="button number">6</button>
-          <button onClick={() => handleNumber('1')} className="button number">1</button>
-          <button onClick={() => handleNumber('2')} className="button number">2</button>
-          <button onClick={() => handleNumber('3')} className="button number">3</button>
-          <button onClick={() => handleNumber('0')} className="button number zero">0</button>
-          <button onClick={() => handleNumber('.')} className="button number">.</button>
-        </div>
-        <div className="operator-pad">
-          <button onClick={handleClear} className="button clear">C</button>
-          <button onClick={() => handleOperator('/')} className="button operator">÷</button>
-          <button onClick={() => handleOperator('*')} className="button operator">×</button>
-          <button onClick={() => handleOperator('-')} className="button operator">-</button>
-          <button onClick={() => handleOperator('+')} className="button operator">+</button>
-          <button onClick={handleEqual} className="button equal">=</button>
-        </div>
+        <NumberPad onNumberClick={handleNumber} />
+        <OperatorPad
+          onOperatorClick={handleOperator}
+          onClear={handleClear}
+          onEqual={handleEqual}
+        />
       </div>
     </div>
   );
