@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import TodoList from './components/todo/TodoList';
 import Note from './components/notes/Note';
-import Calculator from './components/common/Calculator';
+import Calculator from './components/calculator/Calculator';
 import Calendar from './components/calendar/Calendar';
 import Dashboard from './components/dashboard/Dashboard';
 import { Todo, TodoList as TodoListType } from './types/todo';
