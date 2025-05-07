@@ -2,7 +2,8 @@ import React, { useState, useCallback } from 'react';
 import TodoList from './components/TodoList';
 import Note from './components/Note';
 import Calculator from './components/Calculator';
-import { Todo, TodoList as TodoListType, Note as NoteType } from './types/todo';
+import { Todo, TodoList as TodoListType } from './types/todo';
+import type { Note as NoteType } from './types/note';
 import './styles/main.scss';
 
 const TodoInput: React.FC<{
