@@ -121,7 +121,7 @@ const Calculator: React.FC = memo(() => {
     <div className="calculator">
       <div className="calculator-display">
         <div className="equation">{equation}</div>
-        <div className="result">{display}</div>
+        <div className="result" data-testid="result">{display}</div>
       </div>
       <div className="calculator-buttons">
         <NumberPad onNumberClick={handleNumber} />
