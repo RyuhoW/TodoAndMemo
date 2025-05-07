@@ -1,16 +1,21 @@
 # Test info
 
-- Name: Todo List >> should add memo to todo
-- Location: C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\todo.spec.ts:44:7
+- Name: Todo List >> should add a new todo
+- Location: C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\todo.spec.ts:8:7
 
 # Error details
 
 ```
-Error: page.fill: Test timeout of 30000ms exceeded.
-Call log:
-  - waiting for locator('li:has-text("メモ付きタスク") input[placeholder="メモを入力"]')
+Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
 
-    at C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\todo.spec.ts:50:16
+Locator: locator('li:has-text("新しいタスク")')
+Expected: visible
+Received: <element(s) not found>
+Call log:
+  - expect.toBeVisible with timeout 5000ms
+  - waiting for locator('li:has-text("新しいタスク")')
+
+    at C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\todo.spec.ts:12:57
 ```
 
 # Page snapshot
@@ -23,7 +28,7 @@ Call log:
   - textbox "新しいタスクを入力"
   - button "追加"
   - checkbox
-  - text: メモ付きタスク
+  - text: 新しいタスク
   - button "メモを編集":
     - img
   - button "タスクを削除":
@@ -66,7 +71,8 @@ Call log:
    9 |     // 新しいタスクを入力
   10 |     await page.fill('input[placeholder="新しいタスクを入力"]', '新しいタスク');
   11 |     await page.click('button:has-text("追加")');
-  12 |     await expect(page.locator('li:has-text("新しいタスク")')).toBeVisible();
+> 12 |     await expect(page.locator('li:has-text("新しいタスク")')).toBeVisible();
+     |                                                         ^ Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
   13 |   });
   14 |
   15 |   test('should toggle todo completion', async ({ page }) => {
@@ -104,8 +110,7 @@ Call log:
   47 |     await page.click('button:has-text("追加")');
   48 |
   49 |     // メモを追加
-> 50 |     await page.fill('li:has-text("メモ付きタスク") input[placeholder="メモを入力"]', 'タスクのメモ');
-     |                ^ Error: page.fill: Test timeout of 30000ms exceeded.
+  50 |     await page.fill('li:has-text("メモ付きタスク") input[placeholder="メモを入力"]', 'タスクのメモ');
   51 |     await page.click('li:has-text("メモ付きタスク") button:has-text("メモ追加")');
   52 |
   53 |     // メモが追加されたことを確認

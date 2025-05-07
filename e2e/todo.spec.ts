@@ -9,7 +9,7 @@ test.describe('Todo List', () => {
     // 新しいタスクを入力
     await page.fill('input[placeholder="新しいタスクを入力"]', '新しいタスク');
     await page.click('button:has-text("追加")');
-    await expect(page.locator('li:has-text("新しいタスク")')).toBeVisible();
+    await expect(page.locator('.todo-item:has-text("新しいタスク")')).toBeVisible();
   });
 
   test('should toggle todo completion', async ({ page }) => {
@@ -18,12 +18,12 @@ test.describe('Todo List', () => {
     await page.click('button:has-text("追加")');
 
     // タスクを完了状態に変更
-    await page.click('li:has-text("完了するタスク") input[type="checkbox"]');
-    await expect(page.locator('li:has-text("完了するタスク")')).toHaveClass(/completed/);
+    await page.click('.todo-item:has-text("完了するタスク") .todo-checkbox');
+    await expect(page.locator('.todo-item:has-text("完了するタスク") .todo-text')).toHaveClass(/completed/);
 
     // タスクを未完了状態に戻す
-    await page.click('li:has-text("完了するタスク") input[type="checkbox"]');
-    await expect(page.locator('li:has-text("完了するタスク")')).not.toHaveClass(/completed/);
+    await page.click('.todo-item:has-text("完了するタスク") .todo-checkbox');
+    await expect(page.locator('.todo-item:has-text("完了するタスク") .todo-text')).not.toHaveClass(/completed/);
   });
 
   test('should delete a todo', async ({ page }) => {
@@ -32,13 +32,13 @@ test.describe('Todo List', () => {
     await page.click('button:has-text("追加")');
 
     // タスクが存在することを確認
-    await expect(page.locator('li:has-text("削除するタスク")')).toBeVisible();
+    await expect(page.locator('.todo-item:has-text("削除するタスク")')).toBeVisible();
 
     // タスクを削除
-    await page.click('li:has-text("削除するタスク") button:has-text("削除")');
+    await page.click('.todo-item:has-text("削除するタスク") .action-button.delete');
 
     // タスクが削除されたことを確認
-    await expect(page.locator('li:has-text("削除するタスク")')).not.toBeVisible();
+    await expect(page.locator('.todo-item:has-text("削除するタスク")')).not.toBeVisible();
   });
 
   test('should add memo to todo', async ({ page }) => {
@@ -47,10 +47,11 @@ test.describe('Todo List', () => {
     await page.click('button:has-text("追加")');
 
     // メモを追加
-    await page.fill('li:has-text("メモ付きタスク") input[placeholder="メモを入力"]', 'タスクのメモ');
-    await page.click('li:has-text("メモ付きタスク") button:has-text("メモ追加")');
+    await page.click('.todo-item:has-text("メモ付きタスク") .action-button.edit');
+    await page.fill('.todo-item:has-text("メモ付きタスク") .memo-textarea', 'タスクのメモ');
+    await page.click('.todo-item:has-text("メモ付きタスク") .button.save');
 
     // メモが追加されたことを確認
-    await expect(page.locator('li:has-text("メモ付きタスク")')).toContainText('タスクのメモ');
+    await expect(page.locator('.todo-item:has-text("メモ付きタスク") .memo-content')).toContainText('タスクのメモ');
   });
 }); 
