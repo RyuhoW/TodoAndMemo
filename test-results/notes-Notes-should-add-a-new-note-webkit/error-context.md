@@ -1,21 +1,17 @@
 # Test info
 
 - Name: Notes >> should add a new note
-- Location: C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\notes.spec.ts:8:7
+- Location: C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\notes.spec.ts:18:7
 
 # Error details
 
 ```
-Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
-
-Locator: locator('.note:has-text("新しいメモ")')
-Expected: visible
-Received: <element(s) not found>
+Error: page.waitForSelector: Test timeout of 30000ms exceeded.
 Call log:
-  - expect.toBeVisible with timeout 5000ms
-  - waiting for locator('.note:has-text("新しいメモ")')
+  - waiting for locator('.note')
 
-    at C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\notes.spec.ts:11:59
+    at addNote (C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\notes.spec.ts:15:16)
+    at C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\notes.spec.ts:19:5
 ```
 
 # Page snapshot
@@ -59,40 +55,66 @@ Call log:
    3 | test.describe('Notes', () => {
    4 |   test.beforeEach(async ({ page }) => {
    5 |     await page.goto('/');
-   6 |   });
-   7 |
-   8 |   test('should add a new note', async ({ page }) => {
-   9 |     await page.fill('textarea[placeholder="新しいメモを入力"]', '新しいメモ');
-  10 |     await page.click('button:has-text("追加")');
-> 11 |     await expect(page.locator('.note:has-text("新しいメモ")')).toBeVisible();
-     |                                                           ^ Error: Timed out 5000ms waiting for expect(locator).toBeVisible()
-  12 |   });
-  13 |
-  14 |   test('should delete a note', async ({ page }) => {
-  15 |     await page.fill('textarea[placeholder="新しいメモを入力"]', '削除するメモ');
-  16 |     await page.click('button:has-text("追加")');
-  17 |     await page.click('.note:has-text("削除するメモ") .action-button.delete');
-  18 |     await expect(page.locator('.note:has-text("削除するメモ")')).not.toBeVisible();
-  19 |   });
-  20 |
-  21 |   test('should display multiple notes', async ({ page }) => {
-  22 |     await page.fill('textarea[placeholder="新しいメモを入力"]', 'メモ1');
-  23 |     await page.click('button:has-text("追加")');
-  24 |     await page.fill('textarea[placeholder="新しいメモを入力"]', 'メモ2');
-  25 |     await page.click('button:has-text("追加")');
-  26 |     await page.fill('textarea[placeholder="新しいメモを入力"]', 'メモ3');
-  27 |     await page.click('button:has-text("追加")');
+   6 |     await page.waitForLoadState('networkidle');
+   7 |     await page.waitForSelector('textarea[placeholder="新しいメモを入力"]', { state: 'visible' });
+   8 |   });
+   9 |
+  10 |   const addNote = async (page, text) => {
+  11 |     await page.fill('textarea[placeholder="新しいメモを入力"]', '');
+  12 |     await page.fill('textarea[placeholder="新しいメモを入力"]', text);
+  13 |     await page.click('button:has-text("追加")');
+  14 |     await page.waitForTimeout(1000);
+> 15 |     await page.waitForSelector('.note', { state: 'attached' });
+     |                ^ Error: page.waitForSelector: Test timeout of 30000ms exceeded.
+  16 |   };
+  17 |
+  18 |   test('should add a new note', async ({ page }) => {
+  19 |     await addNote(page, '新しいメモ');
+  20 |     
+  21 |     console.log('Current HTML:', await page.content());
+  22 |     
+  23 |     const noteLocator = page.locator('.note', {
+  24 |       has: page.locator('.note-content p', { hasText: '新しいメモ' })
+  25 |     });
+  26 |     await expect(noteLocator).toBeVisible({ timeout: 15000 });
+  27 |   });
   28 |
-  29 |     await expect(page.locator('.note:has-text("メモ1")')).toBeVisible();
-  30 |     await expect(page.locator('.note:has-text("メモ2")')).toBeVisible();
-  31 |     await expect(page.locator('.note:has-text("メモ3")')).toBeVisible();
-  32 |   });
-  33 |
-  34 |   test('should handle empty note input', async ({ page }) => {
-  35 |     const initialNoteCount = await page.locator('.note').count();
-  36 |     await page.click('button:has-text("追加")');
-  37 |     const finalNoteCount = await page.locator('.note').count();
-  38 |     expect(finalNoteCount).toBe(initialNoteCount);
-  39 |   });
-  40 | }); 
+  29 |   test('should delete a note', async ({ page }) => {
+  30 |     await addNote(page, '削除するメモ');
+  31 |     
+  32 |     console.log('Current HTML:', await page.content());
+  33 |     
+  34 |     const noteLocator = page.locator('.note', {
+  35 |       has: page.locator('.note-content p', { hasText: '削除するメモ' })
+  36 |     });
+  37 |     await expect(noteLocator).toBeVisible({ timeout: 15000 });
+  38 |     
+  39 |     await noteLocator.locator('.action-button.delete').click();
+  40 |     await expect(noteLocator).not.toBeVisible({ timeout: 15000 });
+  41 |   });
+  42 |
+  43 |   test('should display multiple notes', async ({ page }) => {
+  44 |     await addNote(page, 'メモ1');
+  45 |     await addNote(page, 'メモ2');
+  46 |     await addNote(page, 'メモ3');
+  47 |
+  48 |     console.log('Current HTML:', await page.content());
+  49 |
+  50 |     for (const text of ['メモ1', 'メモ2', 'メモ3']) {
+  51 |       const noteLocator = page.locator('.note', {
+  52 |         has: page.locator('.note-content p', { hasText: text })
+  53 |       });
+  54 |       await expect(noteLocator).toBeVisible({ timeout: 15000 });
+  55 |     }
+  56 |
+  57 |     await expect(page.locator('.note')).toHaveCount(3, { timeout: 15000 });
+  58 |   });
+  59 |
+  60 |   test('should handle empty note input', async ({ page }) => {
+  61 |     const notes = page.locator('.note');
+  62 |     const initialNoteCount = await notes.count();
+  63 |     await page.click('button:has-text("追加")');
+  64 |     await expect(notes).toHaveCount(initialNoteCount, { timeout: 15000 });
+  65 |   });
+  66 | }); 
 ```
