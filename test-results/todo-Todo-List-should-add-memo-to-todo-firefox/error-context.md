@@ -1,16 +1,16 @@
 # Test info
 
 - Name: Todo List >> should add memo to todo
-- Location: C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\todo.spec.ts:46:7
+- Location: C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\todo.spec.ts:44:7
 
 # Error details
 
 ```
-Error: page.click: Test timeout of 30000ms exceeded.
+Error: page.fill: Test timeout of 30000ms exceeded.
 Call log:
-  - waiting for locator('.todo-item:has-text("メモ付きタスク") .memo-button')
+  - waiting for locator('li:has-text("メモ付きタスク") input[placeholder="メモを入力"]')
 
-    at C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\todo.spec.ts:52:16
+    at C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\todo.spec.ts:50:16
 ```
 
 # Page snapshot
@@ -66,53 +66,50 @@ Call log:
    9 |     // 新しいタスクを入力
   10 |     await page.fill('input[placeholder="新しいタスクを入力"]', '新しいタスク');
   11 |     await page.click('button:has-text("追加")');
-  12 |
-  13 |     // タスクが追加されたことを確認
-  14 |     await expect(page.locator('.todo-item')).toContainText('新しいタスク');
-  15 |   });
-  16 |
-  17 |   test('should toggle todo completion', async ({ page }) => {
-  18 |     // タスクを追加
-  19 |     await page.fill('input[placeholder="新しいタスクを入力"]', '完了するタスク');
-  20 |     await page.click('button:has-text("追加")');
-  21 |
-  22 |     // タスクを完了状態に変更
-  23 |     await page.click('.todo-item:has-text("完了するタスク") .checkbox');
-  24 |     await expect(page.locator('.todo-item:has-text("完了するタスク")')).toHaveClass(/completed/);
-  25 |
-  26 |     // タスクを未完了状態に戻す
-  27 |     await page.click('.todo-item:has-text("完了するタスク") .checkbox');
-  28 |     await expect(page.locator('.todo-item:has-text("完了するタスク")')).not.toHaveClass(/completed/);
-  29 |   });
-  30 |
-  31 |   test('should delete a todo', async ({ page }) => {
-  32 |     // タスクを追加
-  33 |     await page.fill('input[placeholder="新しいタスクを入力"]', '削除するタスク');
-  34 |     await page.click('button:has-text("追加")');
-  35 |
-  36 |     // タスクが存在することを確認
-  37 |     await expect(page.locator('.todo-item:has-text("削除するタスク")')).toBeVisible();
-  38 |
-  39 |     // タスクを削除
-  40 |     await page.click('.todo-item:has-text("削除するタスク") .delete-button');
-  41 |
-  42 |     // タスクが削除されたことを確認
-  43 |     await expect(page.locator('.todo-item:has-text("削除するタスク")')).not.toBeVisible();
-  44 |   });
-  45 |
-  46 |   test('should add memo to todo', async ({ page }) => {
-  47 |     // タスクを追加
-  48 |     await page.fill('input[placeholder="新しいタスクを入力"]', 'メモ付きタスク');
-  49 |     await page.click('button:has-text("追加")');
-  50 |
-  51 |     // メモを追加
-> 52 |     await page.click('.todo-item:has-text("メモ付きタスク") .memo-button');
-     |                ^ Error: page.click: Test timeout of 30000ms exceeded.
-  53 |     await page.fill('.memo-input', 'これはテストメモです');
-  54 |     await page.click('.memo-save-button');
-  55 |
-  56 |     // メモが追加されたことを確認
-  57 |     await expect(page.locator('.todo-item:has-text("メモ付きタスク") .memo')).toContainText('これはテストメモです');
-  58 |   });
-  59 | }); 
+  12 |     await expect(page.locator('li:has-text("新しいタスク")')).toBeVisible();
+  13 |   });
+  14 |
+  15 |   test('should toggle todo completion', async ({ page }) => {
+  16 |     // タスクを追加
+  17 |     await page.fill('input[placeholder="新しいタスクを入力"]', '完了するタスク');
+  18 |     await page.click('button:has-text("追加")');
+  19 |
+  20 |     // タスクを完了状態に変更
+  21 |     await page.click('li:has-text("完了するタスク") input[type="checkbox"]');
+  22 |     await expect(page.locator('li:has-text("完了するタスク")')).toHaveClass(/completed/);
+  23 |
+  24 |     // タスクを未完了状態に戻す
+  25 |     await page.click('li:has-text("完了するタスク") input[type="checkbox"]');
+  26 |     await expect(page.locator('li:has-text("完了するタスク")')).not.toHaveClass(/completed/);
+  27 |   });
+  28 |
+  29 |   test('should delete a todo', async ({ page }) => {
+  30 |     // タスクを追加
+  31 |     await page.fill('input[placeholder="新しいタスクを入力"]', '削除するタスク');
+  32 |     await page.click('button:has-text("追加")');
+  33 |
+  34 |     // タスクが存在することを確認
+  35 |     await expect(page.locator('li:has-text("削除するタスク")')).toBeVisible();
+  36 |
+  37 |     // タスクを削除
+  38 |     await page.click('li:has-text("削除するタスク") button:has-text("削除")');
+  39 |
+  40 |     // タスクが削除されたことを確認
+  41 |     await expect(page.locator('li:has-text("削除するタスク")')).not.toBeVisible();
+  42 |   });
+  43 |
+  44 |   test('should add memo to todo', async ({ page }) => {
+  45 |     // タスクを追加
+  46 |     await page.fill('input[placeholder="新しいタスクを入力"]', 'メモ付きタスク');
+  47 |     await page.click('button:has-text("追加")');
+  48 |
+  49 |     // メモを追加
+> 50 |     await page.fill('li:has-text("メモ付きタスク") input[placeholder="メモを入力"]', 'タスクのメモ');
+     |                ^ Error: page.fill: Test timeout of 30000ms exceeded.
+  51 |     await page.click('li:has-text("メモ付きタスク") button:has-text("メモ追加")');
+  52 |
+  53 |     // メモが追加されたことを確認
+  54 |     await expect(page.locator('li:has-text("メモ付きタスク")')).toContainText('タスクのメモ');
+  55 |   });
+  56 | }); 
 ```
