@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import type { Note } from '../types/note';
+import type { Note } from '../../types/note';
 
 interface NoteProps {
   note: Note;

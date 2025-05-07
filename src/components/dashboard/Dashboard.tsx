@@ -12,8 +12,8 @@ import {
   Pie,
   Cell,
 } from 'recharts';
-import { Todo } from '../types/todo';
-import { Note } from '../types/note';
+import { Todo } from '../../types/todo';
+import { Note } from '../../types/note';
 
 interface DashboardProps {
   todos: Todo[];
