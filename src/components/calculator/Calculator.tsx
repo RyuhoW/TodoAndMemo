@@ -51,7 +51,7 @@ const Calculator: React.FC = () => {
     <div className="calculator">
       <div className="calculator-display">
         <div className="expression">{expression}</div>
-        <div className="result">{display}</div>
+        <div className="result" data-testid="calculator-result">{display}</div>
       </div>
       <div className="calculator-buttons">
         <div className="button-row">

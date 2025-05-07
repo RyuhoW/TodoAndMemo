@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import App from '../App';
+import App from '../../App';
 
 describe('Notes Section', () => {
   test('renders notes section with textarea and add button', () => {
