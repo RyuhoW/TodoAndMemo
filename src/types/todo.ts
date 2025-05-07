@@ -3,15 +3,21 @@ export interface Todo {
   text: string;
   completed: boolean;
   memo?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type TodoList = Todo[];
 
 export interface Note {
   id: number;
-  text: string;
-  timestamp: number;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
 }
+
+export type NoteList = Note[];
 
 export interface NoteType {
   id: number;
