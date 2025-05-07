@@ -25,7 +25,7 @@ const TodoList: React.FC<TodoListProps> = memo(({
   return (
     <div className="todo-list-container">
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="todos">
+        <Droppable droppableId="todos" type="TODO_LIST">
           {(provided) => (
             <div
               ref={provided.innerRef}
