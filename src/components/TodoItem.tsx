@@ -18,13 +18,13 @@ const TodoItem: React.FC<TodoItemProps> = memo(({ todo, onToggle, onDelete, onUp
   };
 
   return (
-    <div className="animate-slide-in bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+    <div className="animate-slide-in bg-gradient-to-r from-white to-indigo-50/50 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 border border-indigo-100/50">
       <div className="flex items-center gap-4">
         <input
           type="checkbox"
           checked={todo.completed}
           onChange={() => onToggle(todo.id)}
-          className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-colors duration-200"
+          className="w-5 h-5 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-colors duration-200 cursor-pointer"
         />
         <span className={`flex-1 text-gray-700 ${todo.completed ? 'line-through text-gray-400' : ''} transition-all duration-200`}>
           {todo.text}
@@ -32,7 +32,7 @@ const TodoItem: React.FC<TodoItemProps> = memo(({ todo, onToggle, onDelete, onUp
         <div className="flex gap-2">
           <button
             onClick={() => setIsEditingMemo(true)}
-            className="p-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-full transition-colors duration-200"
+            className="p-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-full transition-all duration-200 transform hover:scale-110"
             title="メモを編集"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -41,7 +41,7 @@ const TodoItem: React.FC<TodoItemProps> = memo(({ todo, onToggle, onDelete, onUp
           </button>
           <button
             onClick={() => onDelete(todo.id)}
-            className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors duration-200"
+            className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200 transform hover:scale-110"
             title="タスクを削除"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -56,27 +56,27 @@ const TodoItem: React.FC<TodoItemProps> = memo(({ todo, onToggle, onDelete, onUp
           <textarea
             value={memoText}
             onChange={(e) => setMemoText(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm transition-all duration-200"
             placeholder="メモを入力..."
             rows={3}
           />
           <div className="flex justify-end gap-2 mt-2">
             <button
               onClick={() => setIsEditingMemo(false)}
-              className="px-3 py-1 text-sm text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5"
             >
               キャンセル
             </button>
             <button
               onClick={handleMemoSubmit}
-              className="px-3 py-1 text-sm text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors duration-200"
+              className="px-4 py-2 text-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-lg transition-all duration-200 transform hover:-translate-y-0.5 shadow-sm"
             >
               保存
             </button>
           </div>
         </div>
       ) : todo.memo ? (
-        <div className="mt-3 p-3 bg-gray-50 rounded-md animate-fade-in">
+        <div className="mt-3 p-3 bg-white/50 backdrop-blur-sm rounded-xl animate-fade-in border border-indigo-100/50">
           <p className="text-sm text-gray-600">{todo.memo}</p>
         </div>
       ) : null}
