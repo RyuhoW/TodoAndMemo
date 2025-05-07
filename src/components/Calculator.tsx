@@ -18,21 +18,23 @@ interface NumberPadProps {
   onNumberClick: (num: string) => void;
 }
 
-const NumberPad: React.FC<NumberPadProps> = memo(({ onNumberClick }) => (
-  <div className="number-pad">
-    <CalculatorButton onClick={() => onNumberClick('7')} className="number">7</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('8')} className="number">8</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('9')} className="number">9</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('4')} className="number">4</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('5')} className="number">5</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('6')} className="number">6</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('1')} className="number">1</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('2')} className="number">2</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('3')} className="number">3</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('0')} className="number zero">0</CalculatorButton>
-    <CalculatorButton onClick={() => onNumberClick('.')} className="number">.</CalculatorButton>
-  </div>
-));
+const NumberPad: React.FC<NumberPadProps> = memo(({ onNumberClick }) => {
+  const numbers = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.'];
+  
+  return (
+    <div className="number-pad">
+      {numbers.map((num) => (
+        <CalculatorButton
+          key={num}
+          onClick={() => onNumberClick(num)}
+          className={`number ${num === '0' ? 'zero' : ''}`}
+        >
+          {num}
+        </CalculatorButton>
+      ))}
+    </div>
+  );
+});
 
 NumberPad.displayName = 'NumberPad';
 
@@ -42,16 +44,30 @@ interface OperatorPadProps {
   onEqual: () => void;
 }
 
-const OperatorPad: React.FC<OperatorPadProps> = memo(({ onOperatorClick, onClear, onEqual }) => (
-  <div className="operator-pad">
-    <CalculatorButton onClick={onClear} className="clear">C</CalculatorButton>
-    <CalculatorButton onClick={() => onOperatorClick('/')} className="operator">÷</CalculatorButton>
-    <CalculatorButton onClick={() => onOperatorClick('*')} className="operator">×</CalculatorButton>
-    <CalculatorButton onClick={() => onOperatorClick('-')} className="operator">-</CalculatorButton>
-    <CalculatorButton onClick={() => onOperatorClick('+')} className="operator">+</CalculatorButton>
-    <CalculatorButton onClick={onEqual} className="equal">=</CalculatorButton>
-  </div>
-));
+const OperatorPad: React.FC<OperatorPadProps> = memo(({ onOperatorClick, onClear, onEqual }) => {
+  const operators = [
+    { symbol: 'C', className: 'clear', onClick: onClear },
+    { symbol: '÷', className: 'operator', onClick: () => onOperatorClick('/') },
+    { symbol: '×', className: 'operator', onClick: () => onOperatorClick('*') },
+    { symbol: '-', className: 'operator', onClick: () => onOperatorClick('-') },
+    { symbol: '+', className: 'operator', onClick: () => onOperatorClick('+') },
+    { symbol: '=', className: 'equal', onClick: onEqual }
+  ];
+
+  return (
+    <div className="operator-pad">
+      {operators.map((op) => (
+        <CalculatorButton
+          key={op.symbol}
+          onClick={op.onClick}
+          className={op.className}
+        >
+          {op.symbol}
+        </CalculatorButton>
+      ))}
+    </div>
+  );
+});
 
 OperatorPad.displayName = 'OperatorPad';
 
