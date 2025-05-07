@@ -1,17 +1,20 @@
 # Test info
 
 - Name: Notes >> should delete a note
-- Location: C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\notes.spec.ts:29:7
+- Location: C:\Users\ryuho\SynologyDrive\Projects\TodoAndMemo\e2e\notes.spec.ts:25:7
 
 # Error details
 
 ```
-Error: page.waitForSelector: Test timeout of 30000ms exceeded.
-Call log:
-  - waiting for locator('.note')
+Error: locator.click: Error: strict mode violation: getByRole('button', { name: '追加' }) resolved to 2 elements:
+    1) <button class="button">追加</button> aka locator('section').filter({ hasText: 'Todo List追加' }).getByRole('button')
+    2) <button class="button">追加</button> aka locator('section').filter({ hasText: 'Notes削除するメモ追加' }).getByRole('button')
 
-    at addNote (C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\notes.spec.ts:15:16)
-    at C:\Users\ryuho\SynologyDrive\Projects\react-demo\e2e\notes.spec.ts:30:5
+Call log:
+  - waiting for getByRole('button', { name: '追加' })
+
+    at addNote (C:\Users\ryuho\SynologyDrive\Projects\TodoAndMemo\e2e\notes.spec.ts:7:52)
+    at C:\Users\ryuho\SynologyDrive\Projects\TodoAndMemo\e2e\notes.spec.ts:26:5
 ```
 
 # Page snapshot
@@ -19,6 +22,10 @@ Call log:
 ```yaml
 - banner:
   - heading "Todo & Notes App" [level=1]
+  - navigation:
+    - button "Todo"
+    - button "カレンダー"
+    - button "ダッシュボード"
 - main:
   - heading "Todo List" [level=2]
   - textbox "新しいタスクを入力"
@@ -53,68 +60,53 @@ Call log:
    1 | import { test, expect } from '@playwright/test';
    2 |
    3 | test.describe('Notes', () => {
-   4 |   test.beforeEach(async ({ page }) => {
-   5 |     await page.goto('/');
-   6 |     await page.waitForLoadState('networkidle');
-   7 |     await page.waitForSelector('textarea[placeholder="新しいメモを入力"]', { state: 'visible' });
-   8 |   });
-   9 |
-  10 |   const addNote = async (page, text) => {
-  11 |     await page.fill('textarea[placeholder="新しいメモを入力"]', '');
-  12 |     await page.fill('textarea[placeholder="新しいメモを入力"]', text);
-  13 |     await page.click('button:has-text("追加")');
-  14 |     await page.waitForTimeout(1000);
-> 15 |     await page.waitForSelector('.note', { state: 'attached' });
-     |                ^ Error: page.waitForSelector: Test timeout of 30000ms exceeded.
-  16 |   };
-  17 |
-  18 |   test('should add a new note', async ({ page }) => {
-  19 |     await addNote(page, '新しいメモ');
-  20 |     
-  21 |     console.log('Current HTML:', await page.content());
-  22 |     
-  23 |     const noteLocator = page.locator('.note', {
-  24 |       has: page.locator('.note-content p', { hasText: '新しいメモ' })
-  25 |     });
-  26 |     await expect(noteLocator).toBeVisible({ timeout: 15000 });
-  27 |   });
-  28 |
-  29 |   test('should delete a note', async ({ page }) => {
-  30 |     await addNote(page, '削除するメモ');
-  31 |     
-  32 |     console.log('Current HTML:', await page.content());
-  33 |     
-  34 |     const noteLocator = page.locator('.note', {
-  35 |       has: page.locator('.note-content p', { hasText: '削除するメモ' })
-  36 |     });
-  37 |     await expect(noteLocator).toBeVisible({ timeout: 15000 });
-  38 |     
-  39 |     await noteLocator.locator('.action-button.delete').click();
-  40 |     await expect(noteLocator).not.toBeVisible({ timeout: 15000 });
-  41 |   });
-  42 |
-  43 |   test('should display multiple notes', async ({ page }) => {
-  44 |     await addNote(page, 'メモ1');
-  45 |     await addNote(page, 'メモ2');
-  46 |     await addNote(page, 'メモ3');
-  47 |
-  48 |     console.log('Current HTML:', await page.content());
-  49 |
-  50 |     for (const text of ['メモ1', 'メモ2', 'メモ3']) {
-  51 |       const noteLocator = page.locator('.note', {
-  52 |         has: page.locator('.note-content p', { hasText: text })
-  53 |       });
-  54 |       await expect(noteLocator).toBeVisible({ timeout: 15000 });
-  55 |     }
-  56 |
-  57 |     await expect(page.locator('.note')).toHaveCount(3, { timeout: 15000 });
-  58 |   });
-  59 |
-  60 |   test('should handle empty note input', async ({ page }) => {
-  61 |     const notes = page.locator('.note');
-  62 |     const initialNoteCount = await notes.count();
-  63 |     await page.click('button:has-text("追加")');
-  64 |     await expect(notes).toHaveCount(initialNoteCount, { timeout: 15000 });
-  65 |   });
-  66 | }); 
+   4 |   const addNote = async (page: any, text: string) => {
+   5 |     await page.waitForSelector('textarea[placeholder="新しいメモを入力"]', { state: 'visible', timeout: 10000 });
+   6 |     await page.getByPlaceholder('新しいメモを入力').fill(text);
+>  7 |     await page.getByRole('button', { name: '追加' }).click();
+     |                                                    ^ Error: locator.click: Error: strict mode violation: getByRole('button', { name: '追加' }) resolved to 2 elements:
+   8 |     await page.waitForTimeout(1000);
+   9 |     await page.waitForSelector('.note', { state: 'attached' });
+  10 |   };
+  11 |
+  12 |   test.beforeEach(async ({ page }) => {
+  13 |     await page.goto('/');
+  14 |     // アプリケーションの読み込みを待機
+  15 |     await page.waitForLoadState('networkidle');
+  16 |     // Todoタブに移動
+  17 |     await page.getByRole('button', { name: 'Todo' }).click();
+  18 |   });
+  19 |
+  20 |   test('should add a new note', async ({ page }) => {
+  21 |     await addNote(page, 'テストメモ');
+  22 |     await expect(page.locator('.note')).toContainText('テストメモ');
+  23 |   });
+  24 |
+  25 |   test('should delete a note', async ({ page }) => {
+  26 |     await addNote(page, '削除するメモ');
+  27 |     await page.waitForSelector('.note:has-text("削除するメモ")', { state: 'visible', timeout: 10000 });
+  28 |     await page.locator('.note:has-text("削除するメモ") .delete-button').click();
+  29 |     await expect(page.locator('.note:has-text("削除するメモ")')).not.toBeVisible();
+  30 |   });
+  31 |
+  32 |   test('should display multiple notes', async ({ page }) => {
+  33 |     await addNote(page, 'メモ1');
+  34 |     await addNote(page, 'メモ2');
+  35 |     await addNote(page, 'メモ3');
+  36 |
+  37 |     const notes = await page.locator('.note').all();
+  38 |     expect(notes).toHaveLength(3);
+  39 |
+  40 |     await expect(page.locator('.note').nth(0)).toContainText('メモ1');
+  41 |     await expect(page.locator('.note').nth(1)).toContainText('メモ2');
+  42 |     await expect(page.locator('.note').nth(2)).toContainText('メモ3');
+  43 |   });
+  44 |
+  45 |   test('should handle empty note input', async ({ page }) => {
+  46 |     const notes = page.locator('.note');
+  47 |     const initialNoteCount = await notes.count();
+  48 |     await page.click('button:has-text("追加")');
+  49 |     await expect(notes).toHaveCount(initialNoteCount, { timeout: 15000 });
+  50 |   });
+  51 | }); 
 ```
