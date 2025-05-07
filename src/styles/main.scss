@@ -1,0 +1,359 @@
+// Variables
+$primary-color: #4CAF50;
+$primary-dark: #388E3C;
+$primary-light: #81C784;
+$text-color: #333;
+$background-color: #f5f5f5;
+$white: #fff;
+$shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin card {
+  background: $white;
+  border-radius: 8px;
+  box-shadow: $shadow;
+  padding: 1rem;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@mixin button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+// Animations
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Global styles
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: $background-color;
+  color: $text-color;
+}
+
+// App styles
+.app {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+
+  @media (min-width: 640px) {
+    padding: 2rem;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: bounceIn 0.5s ease-out;
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, $primary-color, $primary-dark);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      color: $text-color;
+      opacity: 0.8;
+    }
+  }
+
+  .content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .section {
+    @include card;
+    animation: fadeIn 0.3s ease-out;
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: $text-color;
+    }
+  }
+
+  .input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    input, textarea {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+      }
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+  }
+
+  .button {
+    @include button;
+    background: linear-gradient(to right, $primary-color, $primary-dark);
+    color: $white;
+
+    &:hover {
+      background: linear-gradient(to right, darken($primary-color, 5%), darken($primary-dark, 5%));
+    }
+  }
+}
+
+// TodoItem styles
+.todo-item {
+  @include card;
+  animation: slideIn 0.3s ease-out;
+  background: linear-gradient(to right, white, rgba($indigo-50, 0.5));
+  border: 1px solid rgba($indigo-100, 0.5);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  .todo-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .todo-checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    border-color: $gray-300;
+    color: $indigo-600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:focus {
+      ring: 2px;
+      ring-color: $indigo-500;
+    }
+  }
+
+  .todo-text {
+    flex: 1;
+    color: $gray-700;
+    transition: all 0.2s ease;
+
+    &.completed {
+      text-decoration: line-through;
+      color: $gray-400;
+    }
+  }
+
+  .todo-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .action-button {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &.edit {
+      color: $indigo-600;
+
+      &:hover {
+        color: $indigo-700;
+        background-color: $indigo-50;
+      }
+    }
+
+    &.delete {
+      color: $red-600;
+
+      &:hover {
+        color: $red-700;
+        background-color: $red-50;
+      }
+    }
+
+    .icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  .memo-editor {
+    margin-top: 0.75rem;
+    animation: fadeIn 0.3s ease-out;
+
+    .memo-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid $gray-300;
+      border-radius: 0.75rem;
+      box-shadow: $shadow-sm;
+      transition: all 0.2s ease;
+
+      &:focus {
+        ring: 2px;
+        ring-color: $indigo-500;
+        border-color: $indigo-500;
+      }
+    }
+
+    .memo-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+  }
+
+  .memo-content {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background-color: rgba(white, 0.5);
+    backdrop-filter: blur(4px);
+    border-radius: 0.75rem;
+    border: 1px solid rgba($indigo-100, 0.5);
+    animation: fadeIn 0.3s ease-out;
+
+    p {
+      font-size: 0.875rem;
+      color: $gray-600;
+    }
+  }
+}
+
+// Note styles
+.note {
+  @include card;
+  animation: slideIn 0.3s ease-out;
+  background: linear-gradient(to right, white, rgba($purple-50, 0.5));
+  border: 1px solid rgba($purple-100, 0.5);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  .note-content {
+    flex: 1;
+
+    p {
+      color: $gray-700;
+      white-space: pre-wrap;
+    }
+
+    .note-timestamp {
+      display: block;
+      font-size: 0.875rem;
+      color: $gray-500;
+      margin-top: 0.5rem;
+    }
+  }
+
+  .action-button {
+    padding: 0.5rem;
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &.delete {
+      color: $red-600;
+
+      &:hover {
+        color: $red-700;
+        background-color: $red-50;
+      }
+    }
+
+    .icon {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+} 
