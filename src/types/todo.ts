@@ -2,9 +2,10 @@ export interface Todo {
   id: number;
   text: string;
   completed: boolean;
-  memo?: string;
   createdAt: string;
   updatedAt: string;
+  completedAt?: string;
+  memo?: string;
 }
 
 export type TodoList = Todo[];
