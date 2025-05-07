@@ -27,7 +27,7 @@ function App() {
       const newNote: NoteType = {
         id: Date.now(),
         text: noteText.trim(),
-        createdAt: new Date(),
+        timestamp: Date.now(),
       };
       setNotes((prevNotes) => [...prevNotes, newNote]);
       setNoteText('');
