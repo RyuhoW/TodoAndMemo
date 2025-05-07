@@ -11,4 +11,10 @@ export interface Note {
   id: number;
   text: string;
   createdAt: Date;
+}
+
+export interface NoteType {
+  id: number;
+  text: string;
+  timestamp: number;
 } 
