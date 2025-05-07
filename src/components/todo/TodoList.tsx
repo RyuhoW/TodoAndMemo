@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { Todo } from '../types/todo';
+import { Todo } from '../../types/todo';
 
 interface TodoListProps {
   todos: Todo[];

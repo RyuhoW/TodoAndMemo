@@ -1,12 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import TodoList from './components/TodoList';
-import Note from './components/Note';
-import Calculator from './components/Calculator';
-import Calendar, { CalendarEvent } from './components/Calendar';
-import Dashboard from './components/Dashboard';
+import TodoList from './components/todo/TodoList';
+import Note from './components/notes/Note';
+import Calculator from './components/common/Calculator';
+import Calendar from './components/calendar/Calendar';
+import Dashboard from './components/dashboard/Dashboard';
 import { Todo, TodoList as TodoListType } from './types/todo';
-import type { Note as NoteType } from './types/note';
+import { Note as NoteType } from './types/note';
 import { DropResult } from 'react-beautiful-dnd';
+import { CalendarEvent } from './components/calendar/CalendarEvent';
 import './styles/main.scss';
 
 const TodoInput: React.FC<{
