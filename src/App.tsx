@@ -70,6 +70,7 @@ const App: React.FC = () => {
   const [noteText, setNoteText] = useState('');
   const [activeTab, setActiveTab] = useState<'todo' | 'calendar' | 'dashboard'>('todo');
   const [showCompleted, setShowCompleted] = useState(false);
+  const [completedTasksLimit, setCompletedTasksLimit] = useState(10);
   const taskRepository = useMemo(() => new TaskRepository(), []);
   const noteRepository = useMemo(() => new NoteRepository(), []);
 
@@ -322,11 +323,45 @@ const App: React.FC = () => {
   }, []);
 
   const filteredTodos = useMemo(() => {
-    return todos.filter(todo => showCompleted || todo.status === 'pending');
-  }, [todos, showCompleted]);
+    const filtered = todos.filter(todo => showCompleted || todo.status === 'pending');
+    if (showCompleted) {
+      return filtered.slice(0, completedTasksLimit);
+    }
+    return filtered;
+  }, [todos, showCompleted, completedTasksLimit]);
+
+  const hasMoreCompletedTasks = useMemo(() => {
+    if (!showCompleted) return false;
+    const completedTasks = todos.filter(todo => todo.status === 'completed');
+    return completedTasks.length > completedTasksLimit;
+  }, [todos, showCompleted, completedTasksLimit]);
+
+  const handleShowMore = () => {
+    setCompletedTasksLimit(prev => prev + 10);
+  };
+
+  const calculateCompletionRate = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const todayTasks = todos.filter(task => {
+      const taskDate = task.scheduled_time ? new Date(task.scheduled_time).toISOString().split('T')[0] : null;
+      return taskDate === today;
+    });
+    
+    if (todayTasks.length === 0) return 0;
+    
+    const completedTasks = todayTasks.filter(task => task.status === 'completed').length;
+    return (completedTasks / todayTasks.length) * 100;
+  };
+
+  const getProgressBarColor = (rate: number) => {
+    if (rate < 35) return 'progress-bar__fill--red';
+    if (rate < 70) return 'progress-bar__fill--yellow';
+    return 'progress-bar__fill--blue';
+  };
 
   return (
     <div className="app">
+   
       <header className="app-header">
         <h1>Stoic Todo</h1>
         <nav className="main-nav">
@@ -350,6 +385,12 @@ const App: React.FC = () => {
           </button>
         </nav>
       </header>
+      <div className="progress-bar">
+        <div
+          className={`progress-bar__fill ${getProgressBarColor(calculateCompletionRate())}`}
+          style={{ width: `${calculateCompletionRate()}%` }}
+        />
+      </div>
 
       <div className="app-container">
         <div className="main-panel">
@@ -368,7 +409,10 @@ const App: React.FC = () => {
                           ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                           : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
                       }`}
-                    onClick={() => setShowCompleted(!showCompleted)}
+                    onClick={() => {
+                      setShowCompleted(!showCompleted);
+                      setCompletedTasksLimit(10);
+                    }}
                   >
                     {showCompleted ? '未完了のタスク' : '完了したタスク'}
                   </button>
@@ -385,6 +429,16 @@ const App: React.FC = () => {
                     onCarryOver={handleCarryOver}
                     showCompleted={showCompleted}
               />
+                {hasMoreCompletedTasks && (
+                  <div className="flex justify-center mt-4">
+                    <button
+                      className="show-more-button"
+                      onClick={handleShowMore}
+                    >
+                      もっと見る
+                    </button>
+                  </div>
+                )}
                 </div>
             </section>
               <section className="section notes-section">
