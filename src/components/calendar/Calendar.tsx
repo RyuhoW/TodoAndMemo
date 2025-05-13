@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Calendar as BigCalendar, dateFnsLocalizer, Event, View, CalendarProps as BigCalendarProps } from 'react-big-calendar';
 import { format } from 'date-fns/format';
 import { parse } from 'date-fns/parse';
@@ -75,26 +75,19 @@ const Calendar: React.FC<CalendarProps> = ({
     setActiveView(newView);
   }, []);
 
-  const events: CalendarEvent[] = [
-    ...todos.map((todo): CalendarEvent => ({
+  const events = useMemo(() => {
+    const todoEvents = todos.map(todo => ({
       id: todo.id,
       title: todo.title,
-      start: new Date(todo.created_at),
-      end: new Date(todo.created_at),
-      allDay: true,
-      type: 'todo',
-      originalData: todo,
-    })),
-    ...notes?.map((note): CalendarEvent => ({
-      id: note.id,
-      title: note.title,
-      start: new Date(note.createdAt),
-      end: new Date(note.createdAt),
-      allDay: true,
-      type: 'note',
-      originalData: note,
-    })) || [],
-  ];
+      start: new Date(todo.scheduled_time || todo.created_at),
+      end: new Date(new Date(todo.scheduled_time || todo.created_at).getTime() + 30 * 60000), // 30分後
+      type: 'todo' as const,
+      status: todo.status,
+      allDay: false
+    }));
+
+    return [...todoEvents];
+  }, [todos]);
 
   const handleEventDrop = useCallback(
     ({ event, start, end }: EventDropArgs) => {
@@ -128,6 +121,11 @@ const Calendar: React.FC<CalendarProps> = ({
         display: 'block'
       }
     }),
+    formats: {
+      eventTimeRangeFormat: ({ start }) => {
+        return format(start, 'HH:mm');
+      }
+    },
     messages: {
       month: '月',
       week: '週',

@@ -2,10 +2,8 @@ import { Note } from '../types/note';
 
 export class NoteRepository {
     public async getAllNotes(): Promise<Note[]> {
-        console.log('Getting all notes...');
         try {
-            const notes = await window.electron.getAllNotes();
-            console.log('Notes retrieved:', notes);
+            const notes = await window.electron.ipcRenderer.invoke('get-all-notes');
             return notes.map((note: any) => ({
                 id: note.id,
                 title: note.title,
@@ -20,23 +18,19 @@ export class NoteRepository {
     }
 
     public async createNote(note: Omit<Note, 'id'>): Promise<Note> {
-        console.log('Creating note:', note);
         try {
-            const now = new Date().toISOString();
             const noteWithTimestamps = {
                 ...note,
-                createdAt: now,
-                updatedAt: now
+                created_at: note.createdAt,
+                updated_at: note.updatedAt
             };
-            console.log('Note with timestamps:', noteWithTimestamps);
-            const createdNote = await window.electron.createNote(noteWithTimestamps);
-            console.log('Note created:', createdNote);
+            const createdNote = await window.electron.ipcRenderer.invoke('create-note', noteWithTimestamps);
             return {
                 id: createdNote.id,
                 title: createdNote.title,
                 content: createdNote.content,
-                createdAt: createdNote.createdAt,
-                updatedAt: createdNote.updatedAt
+                createdAt: createdNote.created_at,
+                updatedAt: createdNote.updated_at
             };
         } catch (error) {
             console.error('Error creating note:', error);
@@ -45,15 +39,20 @@ export class NoteRepository {
     }
 
     public async updateNote(note: Note): Promise<Note> {
-        console.log('Updating note:', note);
         try {
+            const now = new Date().toISOString();
             const noteWithTimestamp = {
                 ...note,
-                updated_at: new Date().toISOString()
+                updated_at: now
             };
-            const updatedNote = await window.electron.updateNote(noteWithTimestamp);
-            console.log('Note updated:', updatedNote);
-            return updatedNote;
+            const updatedNote = await window.electron.ipcRenderer.invoke('update-note', noteWithTimestamp);
+            return {
+                id: updatedNote.id,
+                title: updatedNote.title,
+                content: updatedNote.content,
+                createdAt: updatedNote.created_at,
+                updatedAt: updatedNote.updated_at
+            };
         } catch (error) {
             console.error('Error updating note:', error);
             throw error;
@@ -61,10 +60,8 @@ export class NoteRepository {
     }
 
     public async deleteNote(id: number): Promise<number> {
-        console.log('Deleting note:', id);
         try {
-            const deletedId = await window.electron.deleteNote(id);
-            console.log('Note deleted:', deletedId);
+            const deletedId = await window.electron.ipcRenderer.invoke('delete-note', id);
             return deletedId;
         } catch (error) {
             console.error('Error deleting note:', error);

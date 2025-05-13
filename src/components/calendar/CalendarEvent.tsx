@@ -19,7 +19,7 @@ export interface EventDropArgs {
 }
 
 export const createCalendarEvent = (data: Todo | Note): CalendarEvent => {
-  const isTodo = 'completed' in data;
+  const isTodo = 'status' in data;
   const timestamp = isTodo ? (data as Todo).created_at : (data as Note).createdAt;
   return {
     id: data.id,

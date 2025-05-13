@@ -1,6 +1,6 @@
 {
   "name": "todo-and-memo",
-  "version": "0.1.0",
+  "version": "2.1.0",
   "private": true,
   "homepage": "./",
   "dependencies": {
@@ -15,8 +15,6 @@
     "date-fns": "^4.1.0",
     "file-uri-to-path": "^1.0.0",
     "react": "^18.2.0",
-    "react-beautiful-dnd": "^13.1.1",
-    "react-big-calendar": "^1.18.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "recharts": "^2.15.3",
@@ -30,12 +28,9 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .\"",
-    "rebuild": "electron-rebuild -f -w better-sqlite3",
-    "clean": "if exist dist rmdir /s /q dist && if exist build rmdir /s /q build",
-    "prebuild": "npm run clean",
-    "postbuild": "xcopy /E /I /Y build dist\\todo-and-memo-win32-x64\\resources\\app\\build",
-    "copy-sqlite": "xcopy /E /I /Y node_modules\\better-sqlite3 dist\\todo-and-memo-win32-x64\\resources\\app\\node_modules\\better-sqlite3",
-    "electron-pack": "npm run clean && npm run build && npm run rebuild && npx electron-packager . todo-and-memo --platform=win32 --arch=x64 --out=dist --icon=public/favicon.ico --ignore=\"node_modules/(?!better-sqlite3|bindings|file-uri-to-path)\" --overwrite --no-asar --prune=false --electron-version=29.4.6 && npm run postbuild && npm run copy-sqlite && xcopy /E /I /Y node_modules\\bindings dist\\todo-and-memo-win32-x64\\resources\\app\\node_modules\\bindings && xcopy /E /I /Y node_modules\\file-uri-to-path dist\\todo-and-memo-win32-x64\\resources\\app\\node_modules\\file-uri-to-path && xcopy /E /I /Y node_modules\\node-gyp dist\\todo-and-memo-win32-x64\\resources\\app\\node_modules\\node-gyp"
+    "electron-pack": "electron-builder -c.extraMetadata.main=build/electron.js",
+    "preelectron-pack": "npm run build",
+    "clean": "if exist dist rmdir /s /q dist && if exist build rmdir /s /q build"
   },
   "eslintConfig": {
     "extends": [
@@ -61,21 +56,50 @@
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "electron": "^29.1.0",
+    "electron-builder": "^26.0.12",
     "electron-packager": "^17.1.2",
     "electron-rebuild": "^3.2.9",
+    "path-browserify": "^1.0.1",
+    "react-app-rewired": "^2.2.1",
     "rimraf": "^6.0.1",
     "wait-on": "^7.2.0"
   },
   "main": "electron/main.js",
   "build": {
     "appId": "com.todo-and-memo",
+    "productName": "Todo and Memo",
     "files": [
       "build/**/*",
       "electron/**/*",
       "node_modules/**/*"
     ],
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/favicon.ico",
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Todo and Memo",
+      "installerIcon": "public/favicon.ico",
+      "uninstallerIcon": "public/favicon.ico",
+      "installerHeaderIcon": "public/favicon.ico",
+      "menuCategory": true,
+      "perMachine": true
     }
   }
 }

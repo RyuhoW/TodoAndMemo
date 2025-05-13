@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const Database = require('better-sqlite3');
 const fs = require('fs');
+const { spawn } = require('child_process');
 
 let mainWindow;
 let db;
@@ -39,15 +40,15 @@ function createWindow() {
 
         if (process.env.NODE_ENV === 'development') {
             log('Loading development URL...');
+            mainWindow.loadURL('http://localhost:3000');
             mainWindow.webContents.openDevTools();
+        } else {
+            const appPath = app.getAppPath();
+            const buildPath = path.join(appPath, 'build');
+            const indexPath = path.join(buildPath, 'index.html');
+            log('Loading index.html from: ' + indexPath);
+            mainWindow.loadFile(indexPath);
         }
-
-        const appPath = app.getAppPath();
-        const buildPath = path.join(appPath, 'build');
-        const indexPath = path.join(buildPath, 'index.html');
-
-        log('Loading index.html from: ' + indexPath);
-        mainWindow.loadFile(indexPath);
 
         mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
             handleError(new Error(`Failed to load: ${errorCode} - ${errorDescription}`), 'did-fail-load');
@@ -83,7 +84,9 @@ function initializeDatabase() {
                 status TEXT DEFAULT 'pending',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                memo TEXT
+                memo TEXT,
+                memos TEXT DEFAULT '[]',
+                scheduled_time DATETIME
             );
 
             CREATE TABLE IF NOT EXISTS notes (
@@ -139,11 +142,21 @@ ipcMain.handle('get-all-tasks', async () => {
 
 ipcMain.handle('create-task', async (event, task) => {
     try {
+        const now = new Date().toISOString();
         const stmt = db.prepare(`
-            INSERT INTO tasks (title, description, status, created_at, updated_at, memo)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO tasks (title, description, status, created_at, updated_at, memo, memos, scheduled_time)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `);
-        const result = stmt.run(task.title, task.description, task.status, task.created_at, task.updated_at, task.memo || null);
+        const result = stmt.run(
+            task.title || '',
+            task.description || '',
+            task.status || 'pending',
+            task.created_at || now,
+            task.updated_at || now,
+            task.memo || null,
+            JSON.stringify(task.memos || []),
+            task.scheduled_time || null
+        );
         return { id: result.lastInsertRowid, ...task };
     } catch (error) {
         log('Error creating task: ' + error.message);
@@ -154,11 +167,20 @@ ipcMain.handle('create-task', async (event, task) => {
 ipcMain.handle('update-task', async (event, task) => {
     try {
         const stmt = db.prepare(`
-            UPDATE tasks
-            SET title = ?, description = ?, status = ?, updated_at = ?, memo = ?
+            UPDATE tasks 
+            SET title = ?, description = ?, status = ?, updated_at = ?, memo = ?, memos = ?, scheduled_time = ?
             WHERE id = ?
         `);
-        stmt.run(task.title, task.description, task.status, task.updated_at, task.memo || null, task.id);
+        const result = stmt.run(
+            task.title,
+            task.description,
+            task.status,
+            task.updated_at,
+            task.memo || null,
+            JSON.stringify(task.memos || []),
+            task.scheduled_time || null,
+            task.id
+        );
         return task;
     } catch (error) {
         log('Error updating task: ' + error.message);
@@ -197,15 +219,15 @@ ipcMain.handle('create-note', async (event, note) => {
         const result = stmt.run(
             note.title,
             note.content,
-            note.createdAt,
-            note.updatedAt
+            note.created_at,
+            note.updated_at
         );
         const createdNote = {
             id: result.lastInsertRowid,
             title: note.title,
             content: note.content,
-            createdAt: note.createdAt,
-            updatedAt: note.updatedAt
+            created_at: note.created_at,
+            updated_at: note.updated_at
         };
         log(`Note created successfully: ${JSON.stringify(createdNote)}`);
         return createdNote;
@@ -238,6 +260,103 @@ ipcMain.handle('delete-note', async (event, id) => {
         return id;
     } catch (error) {
         log('Error deleting note: ' + error.message);
+        throw error;
+    }
+});
+
+// Pythonスクリプトを実行する関数
+function runTaskOptimizer(taskData) {
+  return new Promise((resolve, reject) => {
+    const pythonProcess = spawn('python', [
+      path.join(__dirname, 'python', 'task_optimizer.py'),
+      JSON.stringify(taskData)
+    ]);
+
+    let result = '';
+    let error = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      result += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      error += data.toString();
+    });
+
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`Python process exited with code ${code}: ${error}`));
+      } else {
+        try {
+          const recommendations = JSON.parse(result);
+          resolve(recommendations);
+        } catch (e) {
+          reject(new Error(`Failed to parse Python output: ${e.message}`));
+        }
+      }
+    });
+  });
+}
+
+// IPCハンドラーの追加
+ipcMain.handle('get-task-recommendations', async (event, taskData) => {
+  try {
+    const recommendations = await runTaskOptimizer(taskData);
+    return recommendations;
+  } catch (error) {
+    console.error('Error getting task recommendations:', error);
+    throw error;
+  }
+});
+
+// タスクデータを取得するIPCハンドラー
+ipcMain.handle('get-task-data', async () => {
+    try {
+        const taskDays = db.prepare(`
+            SELECT 
+                date(created_at) as date,
+                COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_tasks,
+                CASE WHEN COUNT(CASE WHEN status = 'completed' THEN 1 END) = 0 THEN 1 ELSE 0 END as is_rest_day
+            FROM tasks
+            GROUP BY date(created_at)
+            ORDER BY date(created_at) DESC
+        `).all();
+
+        const dateRange = db.prepare(`
+            SELECT 
+                MIN(date(created_at)) as start_date,
+                MAX(date(created_at)) as end_date
+            FROM tasks
+        `).get();
+
+        if (!dateRange || !dateRange.start_date || !dateRange.end_date) {
+            return taskDays;
+        }
+
+        const allDays = [];
+        let currentDate = new Date(dateRange.start_date);
+        const endDate = new Date(dateRange.end_date);
+
+        while (currentDate <= endDate) {
+            const dateStr = currentDate.toISOString().split('T')[0];
+            const existingDay = taskDays.find(day => day.date === dateStr);
+
+            if (existingDay) {
+                allDays.push(existingDay);
+            } else {
+                allDays.push({
+                    date: dateStr,
+                    completed_tasks: 0,
+                    is_rest_day: 1
+                });
+            }
+
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return allDays;
+    } catch (error) {
+        log('Error getting task data: ' + error.message);
         throw error;
     }
 });

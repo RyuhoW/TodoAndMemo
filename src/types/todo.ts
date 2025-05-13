@@ -1,11 +1,15 @@
+export type TodoStatus = 'pending' | 'completed';
+
 export interface Todo {
   id: number;
   title: string;
   description: string | null;
-  status: 'pending' | 'completed';
+  status: TodoStatus;
   created_at: string;
   updated_at: string;
-  memo?: string | null;
+  memo?: string;
+  memos: string[];
+  scheduled_time?: string;
 }
 
 export type TodoList = Todo[];

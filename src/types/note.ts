@@ -5,11 +5,5 @@ export interface Note {
   createdAt: string;
   updatedAt: string;
 }
-
-export type NoteList = Note[];
-
-export interface NoteType {
-  id: number;
-  text: string;
-  timestamp: number;
-} 
+ 
+export type NoteList = Note[]; 

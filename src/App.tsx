@@ -4,12 +4,13 @@ import Note from './components/notes/Note';
 import Calculator from './components/calculator/Calculator';
 import Calendar from './components/calendar/Calendar';
 import Dashboard from './components/dashboard/Dashboard';
+import TaskRecommendations from './components/TaskRecommendations';
 import { Todo, TodoList as TodoListType } from './types/todo';
 import { Note as NoteType } from './types/note';
-import { DropResult } from 'react-beautiful-dnd';
 import { CalendarEvent } from './components/calendar/CalendarEvent';
 import { TaskRepository } from './database/taskRepository';
 import { NoteRepository } from './database/noteRepository';
+import TaskForm from './components/todo/TaskForm';
 import './styles/main.scss';
 
 const TodoInput: React.FC<{
@@ -30,18 +31,18 @@ const TodoInput: React.FC<{
   };
 
   return (
-    <div className="input-group">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="新しいタスクを入力"
+  <div className="input-group">
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="新しいタスクを入力"
         onKeyPress={handleKeyPress}
-      />
+    />
       <button onClick={handleSubmit} className="button">
-        追加
-      </button>
-    </div>
+      追加
+    </button>
+  </div>
   );
 });
 
@@ -56,14 +57,14 @@ const NoteInput: React.FC<{
       onChange={(e) => onChange(e.target.value)}
       placeholder="新しいメモを入力"
     />
-    <button onClick={onSubmit} className="button">
+    <button onClick={onSubmit} className="button-green">
       追加
     </button>
   </div>
 ));
 
 const App: React.FC = () => {
-  const [todos, setTodos] = useState<TodoListType>([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [notes, setNotes] = useState<NoteType[]>([]);
   const [inputText, setInputText] = useState('');
   const [noteText, setNoteText] = useState('');
@@ -76,14 +77,16 @@ const App: React.FC = () => {
     const loadData = async () => {
       try {
         const tasks = await taskRepository.getAllTasks();
-        const todoList: TodoListType = tasks.map(task => ({
+        const todoList: Todo[] = tasks.map(task => ({
           id: task.id,
           title: task.title,
           description: task.description,
           status: task.status,
           created_at: task.created_at,
           updated_at: task.updated_at,
-          memo: task.memo
+          memo: task.memo,
+          scheduled_time: task.scheduled_time,
+          memos: task.memos || []
         }));
         setTodos(todoList);
 
@@ -104,46 +107,29 @@ const App: React.FC = () => {
     }
   }, [taskRepository]);
 
-  const handleAddTodo = useCallback(async () => {
-    console.log('handleAddTodo called with input:', inputText);
-    if (inputText.trim()) {
-      try {
-        const now = new Date().toISOString();
-        const todo: Omit<Todo, 'id'> = {
-          title: inputText.trim(),
-          status: 'pending',
-          description: null,
-          created_at: now,
-          updated_at: now
-        };
-        console.log('Creating todo:', todo);
-        
-        const createdTodo = await taskRepository.createTask(todo);
-        console.log('Created todo:', createdTodo);
-        setTodos((prevTodos) => [...prevTodos, createdTodo]);
-        setInputText('');
-      } catch (error) {
-        console.error('Failed to create task:', error);
-      }
+  const handleAddTodo = useCallback(async (task: Omit<Todo, 'id'>) => {
+    try {
+      const newTodo = await taskRepository.createTask(task);
+      setTodos(prevTodos => [...prevTodos, newTodo]);
+    } catch (error) {
+      console.error('Failed to add todo:', error);
     }
-  }, [inputText, taskRepository]);
+  }, [taskRepository]);
 
   const handleAddNote = useCallback(async () => {
-    console.log('handleAddNote called with input:', noteText);
     if (noteText.trim()) {
       try {
+        const now = new Date().toISOString();
         const newNote: Omit<NoteType, 'id'> = {
           title: noteText.trim(),
           content: noteText.trim(),
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
-        console.log('Creating note:', newNote);
+          createdAt: now,
+          updatedAt: now
+      };
         
         const createdNote = await noteRepository.createNote(newNote);
-        console.log('Created note:', createdNote);
         setNotes((prevNotes) => [...prevNotes, createdNote]);
-        setNoteText('');
+      setNoteText('');
       } catch (error) {
         console.error('Failed to create note:', error);
       }
@@ -161,17 +147,17 @@ const App: React.FC = () => {
           updated_at: new Date().toISOString()
         });
         
-        setTodos((prevTodos) =>
-          prevTodos.map((todo) =>
-            todo.id === id
-              ? {
-                  ...todo,
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === id
+          ? {
+              ...todo,
                   status: newStatus,
                   updated_at: updatedTodo.updated_at
-                }
-              : todo
-          )
-        );
+            }
+          : todo
+      )
+    );
       }
     } catch (error) {
       console.error('Failed to update task:', error);
@@ -182,7 +168,7 @@ const App: React.FC = () => {
     try {
       const deletedId = await taskRepository.deleteTask(id);
       if (deletedId === id) {
-        setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
       }
     } catch (error) {
       console.error('Failed to delete task:', error);
@@ -193,20 +179,99 @@ const App: React.FC = () => {
     try {
       const deletedId = await noteRepository.deleteNote(id);
       if (deletedId === id) {
-        setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
       }
     } catch (error) {
       console.error('Failed to delete note:', error);
     }
   }, [noteRepository]);
 
-  const handleUpdateMemo = useCallback((id: number, memo: string) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, memo } : todo
-      )
-    );
-  }, []);
+  const handleUpdateMemo = useCallback(async (id: number, newMemo: string) => {
+    try {
+      const todo = todos.find(t => t.id === id);
+      if (!todo) return;
+
+      const updatedTodo = {
+        ...todo,
+        memos: [...(todo.memos || []), newMemo]
+      };
+
+      await taskRepository.updateTask(updatedTodo);
+      setTodos(prevTodos => prevTodos.map(t => 
+        t.id === id ? updatedTodo : t
+      ));
+    } catch (error) {
+      console.error('Failed to update memo:', error);
+    }
+  }, [todos, taskRepository]);
+
+  const handleDeleteMemo = useCallback(async (id: number, memoIndex: number) => {
+    try {
+      const todo = todos.find(t => t.id === id);
+      if (!todo) return;
+
+      const updatedTodo = {
+        ...todo,
+        memos: todo.memos.filter((_, index) => index !== memoIndex)
+      };
+
+      await taskRepository.updateTask(updatedTodo);
+      setTodos(prevTodos => prevTodos.map(t => 
+        t.id === id ? updatedTodo : t
+      ));
+    } catch (error) {
+      console.error('Failed to delete memo:', error);
+    }
+  }, [todos, taskRepository]);
+
+  const handleUpdateScheduledTime = useCallback(async (id: number, scheduledTime: string) => {
+    try {
+      const todo = todos.find(t => t.id === id);
+      if (!todo) return;
+
+      const updatedTodo = {
+        ...todo,
+        scheduled_time: scheduledTime,
+        updated_at: new Date().toISOString()
+      };
+
+      await taskRepository.updateTask(updatedTodo);
+      setTodos(prevTodos =>
+        prevTodos.map(todo =>
+          todo.id === id ? updatedTodo : todo
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update scheduled time:', error);
+    }
+  }, [todos, taskRepository]);
+
+  const handleCarryOver = useCallback(async (id: number) => {
+    try {
+      const todo = todos.find(t => t.id === id);
+      if (!todo) return;
+
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+
+      const updatedTodo: Todo = {
+        ...todo,
+        status: 'completed' as const,
+        updated_at: new Date().toISOString(),
+        scheduled_time: tomorrow.toISOString()
+      };
+
+      await taskRepository.updateTask(updatedTodo);
+      setTodos(prevTodos =>
+        prevTodos.map(t =>
+          t.id === id ? updatedTodo : t
+        )
+      );
+    } catch (error) {
+      console.error('Failed to carry over task:', error);
+    }
+  }, [todos, taskRepository]);
 
   const handleEventDrop = useCallback((event: CalendarEvent, start: Date, end: Date) => {
     if (event.type === 'todo') {
@@ -256,24 +321,14 @@ const App: React.FC = () => {
     console.log('Selected event:', event);
   }, []);
 
-  const handleReorder = useCallback((result: DropResult) => {
-    if (!result.destination) return;
-
-    const items = Array.from(todos);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setTodos(items);
-  }, [todos]);
-
   const filteredTodos = useMemo(() => {
     return todos.filter(todo => showCompleted || todo.status === 'pending');
   }, [todos, showCompleted]);
 
   return (
     <div className="app">
-      <header>
-        <h1>Todo & Notes App</h1>
+      <header className="app-header">
+        <h1>Stoic Todo</h1>
         <nav className="main-nav">
           <button
             className={activeTab === 'todo' ? 'active' : ''}
@@ -295,35 +350,44 @@ const App: React.FC = () => {
           </button>
         </nav>
       </header>
-      <main className="content">
+
+      <div className="app-container">
+        <div className="main-panel">
         {activeTab === 'todo' && (
-          <div className="todo-container">
-            <section className="section todo-section">
-              <h2>Todo List</h2>
-              <div className="todo-controls">
-                <TodoInput
-                  value={inputText}
-                  onChange={setInputText}
+            <div className="todo-container">
+              <section className="section todo-section">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Todo List</h2>
+                <div className="todo-controls space-y-6">
+                  <TaskForm
                   onSubmit={handleAddTodo}
                 />
-                <div className="todo-filters">
+                  <div className="todo-filters flex justify-end">
                   <button
-                    className={`filter-button ${showCompleted ? 'active' : ''}`}
+                      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                        showCompleted
+                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                      }`}
                     onClick={() => setShowCompleted(!showCompleted)}
                   >
                     {showCompleted ? '未完了のタスク' : '完了したタスク'}
                   </button>
                 </div>
               </div>
+                <div className="mt-6">
               <TodoList
                 todos={filteredTodos}
                 onToggle={handleToggle}
                 onDelete={handleDelete}
                 onUpdateMemo={handleUpdateMemo}
-                onReorder={handleReorder}
+                    onUpdateScheduledTime={handleUpdateScheduledTime}
+                    onDeleteMemo={handleDeleteMemo}
+                    onCarryOver={handleCarryOver}
+                    showCompleted={showCompleted}
               />
+                </div>
             </section>
-            <section className="section notes-section">
+              <section className="section notes-section">
               <h2>Notes</h2>
               <NoteInput
                 value={noteText}
@@ -340,14 +404,14 @@ const App: React.FC = () => {
                 ))}
               </div>
             </section>
-            <section className="section calculator-section">
+              <section className="section calculator-section">
               <h2>Calculator</h2>
               <Calculator />
             </section>
-          </div>
+            </div>
         )}
         {activeTab === 'calendar' && (
-          <section className="section calendar-section">
+            <section className="section calendar-section">
             <h2>カレンダー</h2>
             <Calendar
               todos={todos}
@@ -359,15 +423,20 @@ const App: React.FC = () => {
           </section>
         )}
         {activeTab === 'dashboard' && (
-          <section className="section dashboard-section">
-            <h2>ダッシュボード</h2>
+            <section className="section dashboard-section">
+              <h2>ダッシュボード</h2>
             <Dashboard
               todos={todos}
               notes={notes}
             />
           </section>
         )}
-      </main>
+        </div>
+
+        <aside className="recommendations-panel">
+          <TaskRecommendations />
+        </aside>
+      </div>
     </div>
   );
 };

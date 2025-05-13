@@ -1,0 +1,376 @@
+.todo-list {
+  &-container {
+    margin-top: 1rem;
+  }
+
+  .todo-item {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+
+    &.dragging {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transform: scale(1.02);
+    }
+
+    .todo-content {
+      padding: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .todo-checkbox {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 50%;
+        border: 2px solid #d1d5db;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+
+        &:hover {
+          border-color: #2563eb;
+          background-color: rgba(37, 99, 235, 0.1);
+
+          &::before {
+            content: '';
+            position: absolute;
+            width: 0.75rem;
+            height: 0.75rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563eb'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+          }
+        }
+
+        &.completed {
+          background-color: #10b981;
+          border-color: #10b981;
+
+          &::before {
+            content: '';
+            position: absolute;
+            width: 0.75rem;
+            height: 0.75rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+          }
+        }
+
+        svg {
+          width: 0.75rem;
+          height: 0.75rem;
+        }
+      }
+
+      .todo-text {
+        flex-grow: 1;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #111827;
+
+        &.completed {
+          color: #6b7280;
+          text-decoration: line-through;
+        }
+      }
+    }
+
+    .todo-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-top: 1px solid #f3f4f6;
+
+      .action-button {
+        padding: 0.5rem;
+        color: #9ca3af;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        border-radius: 0.375rem;
+        background: transparent;
+
+        &:hover {
+          color: #ef4444;
+          background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        &.expand {
+          &:hover {
+            color: #6b7280;
+            background-color: rgba(107, 114, 128, 0.1);
+          }
+        }
+
+        svg {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+      }
+
+      .todo-expanded {
+        padding: 1rem;
+        background-color: #f9fafb;
+        border-radius: 0.375rem;
+        margin-top: 0.5rem;
+
+        .expanded-section {
+          margin-bottom: 1rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          h4 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+          }
+
+          .input-group {
+            display: flex;
+            gap: 0.5rem;
+
+            input {
+              flex-grow: 1;
+              padding: 0.5rem 0.75rem;
+              border: 1px solid #e5e7eb;
+              border-radius: 0.375rem;
+              font-size: 0.875rem;
+
+              &:focus {
+                outline: none;
+                border-color: #10b981;
+                box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+              }
+            }
+
+            button {
+              padding: 0.5rem 1rem;
+              background: linear-gradient(to right, #10b981, #059669);
+              color: white;
+              border: none;
+              border-radius: 0.375rem;
+              font-size: 0.875rem;
+              font-weight: 500;
+              cursor: pointer;
+              transition: all 0.2s ease;
+
+              &:hover {
+                background: linear-gradient(to right, #059669, #047857);
+              }
+
+              &:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .todo-details {
+      padding: 0.75rem;
+      border-top: 1px solid #f3f4f6;
+
+      .scheduled-time-input {
+        margin-bottom: 1rem;
+
+        .input-group {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+
+          .time-input {
+            flex-grow: 1;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+
+            &:focus {
+              outline: none;
+              border-color: #10b981;
+              box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+            }
+          }
+
+          .save-button {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            background: linear-gradient(to right, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: linear-gradient(to right, #059669, #047857);
+            }
+
+            &:focus {
+              outline: none;
+              box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+            }
+
+            svg {
+              width: 1rem;
+              height: 1rem;
+            }
+          }
+        }
+      }
+
+      .memo-input {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+
+        textarea {
+          flex-grow: 1;
+          padding: 0.5rem;
+          border: 1px solid #e5e7eb;
+          border-radius: 0.375rem;
+          font-size: 0.875rem;
+          resize: vertical;
+          min-height: 4rem;
+
+          &:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+          }
+        }
+
+        .save-button {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.5rem 0.75rem;
+          background: linear-gradient(to right, #10b981, #059669);
+          color: white;
+          border: none;
+          border-radius: 0.375rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: linear-gradient(to right, #059669, #047857);
+          }
+
+          &:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+          }
+
+          svg {
+            width: 1rem;
+            height: 1rem;
+          }
+        }
+      }
+
+      .memo-display {
+        padding: 0.75rem;
+        background-color: #f9fafb;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        color: #4b5563;
+        margin-bottom: 0.75rem;
+
+        .memo-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 0.5rem;
+
+          .memo-title {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: #6366f1;
+            font-weight: 500;
+            font-size: 0.7rem;
+
+            svg {
+              width: 0.65rem;
+              height: 0.65rem;
+              flex-shrink: 0;
+            }
+          }
+
+          .memo-delete {
+            padding: 0.25rem;
+            color: #9ca3af;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-radius: 0.375rem;
+            background: transparent;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+
+            &:hover {
+              color: #ef4444;
+              background-color: rgba(239, 68, 68, 0.1);
+            }
+
+            svg {
+              width: 0.75rem;
+              height: 0.75rem;
+            }
+          }
+        }
+
+        .memo-content {
+          color: #4b5563;
+          line-height: 1.5;
+          white-space: pre-wrap;
+          font-size: 0.875rem;
+          padding-left: 0.9rem;
+        }
+      }
+
+      .scheduled-time {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6366f1;
+        font-size: 0.875rem;
+        padding: 0.5rem;
+        background-color: #f9fafb;
+        border-radius: 0.375rem;
+
+        svg {
+          width: 1rem;
+          height: 1rem;
+        }
+      }
+    }
+  }
+} 

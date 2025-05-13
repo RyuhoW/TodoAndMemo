@@ -4,7 +4,7 @@ export class TaskRepository {
     public async getAllTasks(): Promise<Todo[]> {
         console.log('Getting all tasks...');
         try {
-            const tasks = await window.electron.getAllTasks();
+            const tasks = await window.electron.ipcRenderer.invoke('get-all-tasks');
             console.log('Tasks retrieved:', tasks);
             return tasks.map((task: any) => ({
                 id: task.id,
@@ -13,7 +13,8 @@ export class TaskRepository {
                 status: task.status,
                 created_at: task.created_at,
                 updated_at: task.updated_at,
-                memo: task.memo
+                memo: task.memo,
+                scheduled_time: task.scheduled_time
             }));
         } catch (error) {
             console.error('Error getting tasks:', error);
@@ -24,7 +25,7 @@ export class TaskRepository {
     public async createTask(todo: Omit<Todo, 'id'>): Promise<Todo> {
         console.log('Creating task:', todo);
         try {
-            const createdTask = await window.electron.createTask(todo);
+            const createdTask = await window.electron.ipcRenderer.invoke('create-task', todo);
             console.log('Task created:', createdTask);
             return createdTask;
         } catch (error) {
@@ -36,7 +37,7 @@ export class TaskRepository {
     public async updateTask(todo: Todo): Promise<Todo> {
         console.log('Updating task:', todo);
         try {
-            const updatedTask = await window.electron.updateTask(todo);
+            const updatedTask = await window.electron.ipcRenderer.invoke('update-task', todo);
             console.log('Task updated:', updatedTask);
             return updatedTask;
         } catch (error) {
@@ -48,7 +49,7 @@ export class TaskRepository {
     public async deleteTask(id: number): Promise<number> {
         console.log('Deleting task:', id);
         try {
-            const deletedId = await window.electron.deleteTask(id);
+            const deletedId = await window.electron.ipcRenderer.invoke('delete-task', id);
             console.log('Task deleted:', deletedId);
             return deletedId;
         } catch (error) {
