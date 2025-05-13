@@ -1,6 +1,6 @@
 {
-  "name": "todo-and-memo",
-  "version": "2.1.0",
+  "name": "stoic-todo",
+  "version": "2.2.0",
   "private": true,
   "homepage": "./",
   "dependencies": {
@@ -66,8 +66,8 @@
   },
   "main": "electron/main.js",
   "build": {
-    "appId": "com.todo-and-memo",
-    "productName": "Todo and Memo",
+    "appId": "com.stoic-todo",
+    "productName": "Stoic Todo",
     "files": [
       "build/**/*",
       "electron/**/*",
@@ -94,12 +94,34 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Todo and Memo",
+      "shortcutName": "Stoic Todo",
       "installerIcon": "public/favicon.ico",
       "uninstallerIcon": "public/favicon.ico",
       "installerHeaderIcon": "public/favicon.ico",
       "menuCategory": true,
-      "perMachine": true
+      "perMachine": true,
+      "installDirectory": "C:\\Program Files\\Stoic Todo"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity",
+      "icon": "public/favicon.icns"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     }
   }
 }
