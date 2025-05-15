@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+// import { ipcRenderer } from 'electron';
 
 export class DatabaseManager {
     private static instance: DatabaseManager;

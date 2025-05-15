@@ -1,8 +1,12 @@
 {
   "name": "stoic-todo",
-  "version": "2.2.0",
+  "version": "2.3.1",
   "private": true,
   "homepage": "./",
+  "description": "A productivity app for managing tasks and notes",
+  "author": {
+    "name": "Stoic Todo Team"
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -15,6 +19,7 @@
     "date-fns": "^4.1.0",
     "file-uri-to-path": "^1.0.0",
     "react": "^18.2.0",
+    "react-big-calendar": "^1.8.5",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "recharts": "^2.15.3",
@@ -28,9 +33,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .\"",
-    "electron-pack": "electron-builder -c.extraMetadata.main=build/electron.js",
-    "preelectron-pack": "npm run build",
-    "clean": "if exist dist rmdir /s /q dist && if exist build rmdir /s /q build"
+    "electron-pack": "npm run build && electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
   "eslintConfig": {
     "extends": [
@@ -58,7 +62,6 @@
     "electron": "^29.1.0",
     "electron-builder": "^26.0.12",
     "electron-packager": "^17.1.2",
-    "electron-rebuild": "^3.2.9",
     "path-browserify": "^1.0.1",
     "react-app-rewired": "^2.2.1",
     "rimraf": "^6.0.1",
@@ -66,48 +69,55 @@
   },
   "main": "electron/main.js",
   "build": {
-    "appId": "com.stoic-todo",
+    "appId": "com.stoic.todo",
     "productName": "Stoic Todo",
     "files": [
-      "build/**/*",
       "electron/**/*",
       "node_modules/**/*"
     ],
     "directories": {
-      "buildResources": "assets",
+      "buildResources": "public",
       "output": "dist"
     },
+    "asar": false,
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "extraResources": [
+      {
+        "from": "electron/python",
+        "to": "electron/python",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
     "win": {
       "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/favicon.ico",
-      "requestedExecutionLevel": "requireAdministrator"
+        "nsis"
+      ]
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Stoic Todo",
-      "installerIcon": "public/favicon.ico",
-      "uninstallerIcon": "public/favicon.ico",
-      "installerHeaderIcon": "public/favicon.ico",
-      "menuCategory": true,
       "perMachine": true,
-      "installDirectory": "C:\\Program Files\\Stoic Todo"
+      "shortcutName": "Stoic Todo",
+      "menuCategory": true,
+      "differentialPackage": false,
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "allowElevation": true,
+      "deleteAppDataOnUninstall": true,
+      "runAfterFinish": true,
+      "uninstallDisplayName": "${productName} ${version}",
+      "displayLanguageSelector": true,
+      "license": "LICENSE"
     },
     "mac": {
       "target": [
         "dmg"
       ],
-      "category": "public.app-category.productivity",
-      "icon": "public/favicon.icns"
+      "category": "public.app-category.productivity"
     },
     "dmg": {
       "contents": [
@@ -122,6 +132,21 @@
           "path": "/Applications"
         }
       ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "artifactName": "${productName}-${version}.${ext}",
+      "desktop": {
+        "entry": {
+          "Name": "Stoic Todo",
+          "Comment": "A productivity app for managing tasks and notes",
+          "Categories": "Utility;"
+        }
+      }
     }
   }
 }

@@ -1,8 +1,10 @@
+console.log('USING THIS MAIN.JS');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const Database = require('better-sqlite3');
 const fs = require('fs');
 const { spawn } = require('child_process');
+const isDev = process.env.NODE_ENV === 'development';
 
 let mainWindow;
 let db;
@@ -27,6 +29,11 @@ function createWindow() {
         log(`App path: ${app.getAppPath()}`);
         log(`User data path: ${app.getPath('userData')}`);
 
+        const isProd = !isDev;
+        const preloadPath = isProd
+            ? path.join(app.getAppPath(), 'electron', 'preload.js')
+            : path.join(__dirname, 'preload.js');
+        log('preload path (absolute): ' + preloadPath);
         mainWindow = new BrowserWindow({
             width: 1200,
             height: 800,
@@ -34,11 +41,15 @@ function createWindow() {
                 nodeIntegration: false,
                 contextIsolation: true,
                 webSecurity: false,
-                preload: path.join(__dirname, 'preload.js')
+                preload: preloadPath
             }
         });
 
-        if (process.env.NODE_ENV === 'development') {
+        mainWindow.webContents.on('preload-error', (event, preloadPath, error) => {
+            log('PRELOAD ERROR: ' + preloadPath + ' - ' + error);
+        });
+
+        if (isDev) {
             log('Loading development URL...');
             mainWindow.loadURL('http://localhost:3000');
             mainWindow.webContents.openDevTools();
@@ -267,8 +278,15 @@ ipcMain.handle('delete-note', async (event, id) => {
 // Pythonスクリプトを実行する関数
 function runTaskOptimizer(taskData) {
   return new Promise((resolve, reject) => {
+    const pythonPath = isDev
+      ? path.join(__dirname, 'python', 'task_optimizer.py')
+      : path.join(process.resourcesPath, 'electron', 'python', 'task_optimizer.py');
+
+    log(`Running Python script from: ${pythonPath}`);
+    log(`Task data: ${JSON.stringify(taskData)}`);
+
     const pythonProcess = spawn('python', [
-      path.join(__dirname, 'python', 'task_optimizer.py'),
+      pythonPath,
       JSON.stringify(taskData)
     ]);
 
@@ -277,13 +295,16 @@ function runTaskOptimizer(taskData) {
 
     pythonProcess.stdout.on('data', (data) => {
       result += data.toString();
+      log(`Python stdout: ${data.toString()}`);
     });
 
     pythonProcess.stderr.on('data', (data) => {
       error += data.toString();
+      log(`Python stderr: ${data.toString()}`);
     });
 
     pythonProcess.on('close', (code) => {
+      log(`Python process exited with code ${code}`);
       if (code !== 0) {
         reject(new Error(`Python process exited with code ${code}: ${error}`));
       } else {
