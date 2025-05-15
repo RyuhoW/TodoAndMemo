@@ -76,15 +76,18 @@ const Calendar: React.FC<CalendarProps> = ({
   }, []);
 
   const events = useMemo(() => {
-    const todoEvents = todos.map(todo => ({
-      id: todo.id,
-      title: todo.title,
-      start: new Date(todo.scheduled_time || todo.created_at),
-      end: new Date(new Date(todo.scheduled_time || todo.created_at).getTime() + 30 * 60000), // 30分後
-      type: 'todo' as const,
-      status: todo.status,
-      allDay: false
-    }));
+    const todoEvents = todos
+      .filter(todo => todo.scheduled_time) // 時間指定があるタスクのみをフィルタリング
+      .map(todo => ({
+        id: todo.id,
+        title: todo.title,
+        start: new Date(todo.scheduled_time!),
+        end: new Date(new Date(todo.scheduled_time!).getTime() + 30 * 60000), // 30分後
+        type: 'todo' as const,
+        status: todo.status,
+        allDay: false,
+        originalData: todo
+      }));
 
     return [...todoEvents];
   }, [todos]);
@@ -118,9 +121,24 @@ const Calendar: React.FC<CalendarProps> = ({
         opacity: 0.8,
         color: 'white',
         border: '0',
-        display: 'block'
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '4px 8px',
+        fontSize: '0.875rem',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
     }),
+    components: {
+      event: ({ event }) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.title}</span>
+          <span style={{ flexShrink: 0 }}>{format(event.start, 'HH:mm')}</span>
+        </div>
+      )
+    },
     formats: {
       eventTimeRangeFormat: ({ start }) => {
         return format(start, 'HH:mm');
